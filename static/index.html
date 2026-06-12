@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Inner Crew · 内心剧场</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ground:#14111b; --ground-2:#1b1726; --panel:#201a2c;
+    --bone:#e7e0d0; --muted:#8d8699; --faint:#5a5468;
+    --brass:#c9a86a; --line:#312a40;
+    --ambition:#c0463b; --guardian:#6c8fb3; --empath:#d29b8c;
+    --selfcore:#b15a86; --logician:#57b09b; --dreamer:#9a8fd6;
+    --serif:"Noto Serif SC",Georgia,serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--ground); color:var(--bone);
+    font-family:var(--serif); font-weight:300; line-height:1.7;
+    -webkit-font-smoothing:antialiased; min-height:100%;
+    background-image:
+      radial-gradient(120% 90% at 50% -10%, #241d33 0%, var(--ground) 55%),
+      radial-gradient(100% 120% at 110% 110%, #1a1422 0%, transparent 60%);
+  }
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .wrap{max-width:760px;margin:0 auto;padding:clamp(28px,6vw,64px) clamp(20px,5vw,40px) 120px}
+  .eyebrow{font-size:.72rem;letter-spacing:.4em;text-transform:uppercase;color:var(--brass);font-weight:500;margin-bottom:16px}
+  h1{font-weight:900;font-size:clamp(2rem,6.5vw,3.2rem);line-height:1.06;letter-spacing:.02em;margin-bottom:12px}
+  h1 .dim{color:var(--faint);font-weight:300}
+  h2{font-weight:700;font-size:1.5rem;margin-bottom:8px}
+  .lede{color:var(--muted);max-width:46ch;margin-bottom:36px}
+  .lede-crew{display:inline-block;margin-top:10px;color:var(--brass);opacity:.9;font-size:.96rem}
+  .bridge{color:var(--muted);font-style:italic;font-size:1rem;margin:4px 0 2px}
+  .choose-prompt{color:var(--brass);font-size:1.05rem;letter-spacing:.02em;margin:22px 0 10px}
+  .choose-prompt:empty{display:none}
+  .bubble .who .role{font-weight:300;letter-spacing:.02em;opacity:.72;font-size:.92em}
+
+  .screen{display:none;animation:fade .5s both}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  input,textarea{width:100%;background:var(--ground-2);border:1px solid var(--line);border-radius:3px;
+    color:var(--bone);font-family:var(--serif);font-size:1.12rem;font-weight:300;line-height:1.6;padding:13px 15px;
+    transition:border-color .3s,box-shadow .3s}
+  textarea{resize:vertical;min-height:2.8em;display:block}
+  input::placeholder,textarea::placeholder{color:var(--faint)}
+  input:focus,textarea:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 3px color-mix(in srgb,var(--brass) 16%,transparent)}
+  label{display:block;font-size:.82rem;letter-spacing:.05em;color:var(--muted);margin-bottom:10px}
+
+  button{font-family:var(--serif);cursor:pointer;transition:transform .2s,box-shadow .3s,opacity .3s,background .3s}
+  .go{font-weight:500;font-size:.98rem;letter-spacing:.04em;color:var(--ground);background:var(--brass);
+    border:none;border-radius:2px;padding:13px 26px;margin-top:24px}
+  .go:hover{transform:translateY(-1px);box-shadow:0 8px 26px -10px var(--brass)}
+  .go:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
+
+  .scene{position:relative;border:1px solid var(--line);border-radius:3px;
+    background:linear-gradient(160deg,var(--panel),var(--ground-2));padding:24px 26px;margin:20px 0;overflow:hidden}
+  .scene::before{content:"";position:absolute;inset:0;box-shadow:inset 0 0 90px rgba(0,0,0,.55);pointer-events:none}
+  .scene .tag{font-size:.7rem;letter-spacing:.32em;text-transform:uppercase;color:var(--brass);font-weight:500;display:block;margin-bottom:12px}
+  .scene p{font-size:1.12rem;line-height:1.85;color:#d9d2c4;position:relative}
+
+  .voices{display:flex;flex-direction:column;gap:12px;margin:18px 0;min-height:20px}
+  .bubble{position:relative;padding:11px 16px 12px 20px;border-left:2px solid var(--c);border-radius:2px;
+    background:linear-gradient(100deg,color-mix(in srgb,var(--c) 11%,transparent),transparent 70%);
+    animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .bubble::before{content:"";position:absolute;left:-5px;top:16px;width:8px;height:8px;border-radius:50%;
+    background:var(--c);box-shadow:0 0 12px 1px var(--c)}
+  .bubble .who{font-size:.8rem;letter-spacing:.12em;color:var(--c);font-weight:500;margin-bottom:2px}
+  .bubble .said{font-size:1.05rem;color:#e9e3d6;line-height:1.55}
+  .bubble.mono .said{font-family:var(--mono);font-size:.95rem}
+  .bubble.italic .said{font-style:italic}
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+  .choices{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+  .choice{text-align:left;background:var(--ground-2);border:1px solid var(--line);border-radius:3px;
+    color:var(--bone);font-size:1.05rem;padding:15px 18px}
+  .choice:hover{border-color:var(--brass);transform:translateX(3px)}
+  .choice .k{color:var(--brass);font-weight:700;margin-right:10px}
+  .progress{font-size:.74rem;letter-spacing:.3em;color:var(--faint);text-transform:uppercase;margin-bottom:6px}
+
+  /* 卡片 3D 翻转 */
+  .card-stage{perspective:1200px;margin:24px 0}
+  .card{position:relative;min-height:180px;border-radius:6px;transform-style:preserve-3d;
+    transition:transform 1s cubic-bezier(.2,.7,.2,1);transform:rotateY(180deg)}
+  .card.flipped{transform:rotateY(0)}
+  .card .face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid var(--brass);border-radius:6px;
+    padding:26px 28px;background:linear-gradient(160deg,#241c33,#191320)}
+  .card .back{transform:rotateY(180deg);display:flex;align-items:center;justify-content:center;
+    border-color:var(--line);color:var(--faint);letter-spacing:.3em}
+  .card .ctitle{font-weight:700;font-size:1.35rem;color:var(--brass);margin-bottom:12px}
+  .card .ctext{font-size:1.08rem;line-height:1.8;color:#ddd6c8}
+  .jab{font-style:italic;color:var(--faint);font-size:.92rem;margin-top:18px;padding-left:14px;border-left:1px solid var(--line)}
+
+  /* 天平 */
+  .balance{margin:18px 0 26px}
+  .balance .bar{height:8px;border-radius:4px;background:var(--guardian);overflow:hidden;display:flex}
+  .balance .fill{height:100%;background:var(--ambition);transition:width .7s cubic-bezier(.3,.7,.2,1)}
+  .balance .labels{display:flex;justify-content:space-between;font-size:.78rem;margin-top:8px;color:var(--muted)}
+  .balance .la{color:var(--ambition)}.balance .lb{color:var(--guardian)}
+
+  .speech{padding:13px 18px;border-left:3px solid var(--c);border-radius:2px;margin-bottom:12px;
+    background:linear-gradient(100deg,color-mix(in srgb,var(--c) 12%,transparent),transparent 72%);animation:rise .5s both}
+  .speech .head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .speech .who{color:var(--c);font-weight:500;letter-spacing:.1em}
+  .speech .stance{font-size:.72rem;border:1px solid var(--c);color:var(--c);border-radius:10px;padding:1px 9px;opacity:.85}
+  .speech .searched{font-family:var(--mono);font-size:.68rem;color:var(--logician);
+    background:color-mix(in srgb,var(--logician) 14%,transparent);border-radius:4px;padding:1px 7px;letter-spacing:-.01em}
+  .speech .body{color:#e9e3d6;line-height:1.6}
+  .speech .react{margin-left:auto;display:flex;gap:6px;flex-shrink:0}
+  .speech .like,.speech .dislike{background:transparent;border:1px solid var(--line);color:var(--muted);
+    border-radius:14px;font-size:.74rem;padding:3px 11px;cursor:pointer;transition:border-color .2s,color .2s}
+  .speech .like.on{border-color:var(--brass);color:var(--brass)}
+  .speech .dislike.on{border-color:var(--ambition);color:var(--ambition)}
+
+  .verdict-btns{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0}
+  .vbtn{flex:1;min-width:140px;background:var(--ground-2);border:1px solid var(--line);color:var(--bone);
+    border-radius:3px;padding:14px;font-size:1rem}
+  .vbtn:hover{border-color:var(--brass)}
+  .vbtn.sel{border-color:var(--brass);background:color-mix(in srgb,var(--brass) 12%,var(--ground-2))}
+
+  .report .block{margin-bottom:24px}
+  .report h3{font-size:.78rem;letter-spacing:.28em;text-transform:uppercase;color:var(--brass);margin-bottom:8px}
+  .report ul{list-style:none}
+  .report li{padding-left:18px;position:relative;margin-bottom:7px}
+  .report li::before{content:"—";position:absolute;left:0;color:var(--faint)}
+  .report .dissent{font-style:italic;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;margin-top:8px}
+  .hint{font-size:.84rem;color:var(--faint);margin-top:6px}
+  .err{color:var(--ambition);font-size:.9rem;margin-top:10px}
+  .loading,.thinking{color:var(--faint);font-style:italic;font-size:.95rem;padding:8px 2px}
+  .thinking span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--brass);
+    margin-right:2px;animation:blink 1.2s infinite both}
+  .thinking span:nth-child(2){animation-delay:.2s}.thinking span:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+  @media (max-width:560px){ .verdict-btns{flex-direction:column} .vbtn{min-width:0} }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <!-- 1 立题 -->
+  <section class="screen active" id="s-intro">
+    <p class="eyebrow">内心剧场</p>
+    <h1>每个决定背后<br><span class="dim">都有一场没开成的会</span></h1>
+    <p class="lede">把你正在纠结的真实决定写下来。<br><span class="lede-crew">先走一趟试炼——你会听见几个声音替你较劲；走到最后，它们坐下来，把这场没开成的会吵完。</span></p>
+    <label for="topic">此刻，你正在为什么做决定？</label>
+    <textarea id="topic" rows="2" autocomplete="off" placeholder="例如：要不要离开稳定的工作，去一家创业公司"></textarea>
+    <button class="go" id="start">踏入试炼</button>
+  </section>
+
+  <!-- 2 地牢 -->
+  <section class="screen" id="s-dungeon">
+    <div class="progress" id="node-progress">试炼 · 第一道门</div>
+    <div class="scene"><span class="tag" id="node-axis">——</span><p id="node-scene">——</p></div>
+    <p class="bridge" id="bridge"></p>
+    <div class="voices" id="node-voices"></div>
+    <p class="choose-prompt" id="choose-prompt"></p>
+    <div class="choices" id="node-choices"></div>
+  </section>
+
+  <!-- 3 卡片 -->
+  <section class="screen" id="s-cards">
+    <p class="eyebrow">试炼的裁定</p>
+    <h2>它一直在看着你</h2>
+    <p class="hint">试炼结束，掉落了关于你的观察。</p>
+    <div id="card-stage"></div>
+    <button class="go" id="cards-next">收下，继续</button>
+  </section>
+
+  <!-- 4 自陈 -->
+  <section class="screen" id="s-ask">
+    <p class="eyebrow">会前问询</p>
+    <h2>开会之前，两个人想先问问你</h2>
+    <div style="margin:24px 0"><label id="q-logician" style="color:var(--logician)">——</label>
+      <textarea id="a-assets" rows="2" autocomplete="off" placeholder="（一两句就好）"></textarea></div>
+    <div style="margin:24px 0"><label id="q-selfcore" style="color:var(--selfcore)">——</label>
+      <textarea id="a-desire" rows="2" autocomplete="off" placeholder="（一两句就好）"></textarea></div>
+    <button class="go" id="ask-next">让他们开会</button>
+  </section>
+
+  <!-- 5 会议 -->
+  <section class="screen" id="s-meeting">
+    <p class="eyebrow" id="act-label">第一幕 · 对峙</p>
+    <div class="balance" id="balance" style="display:none">
+      <div class="bar"><div class="fill" id="bal-fill" style="width:50%"></div></div>
+      <div class="labels"><span class="la" id="bal-a">——</span><span class="lb" id="bal-b">——</span></div>
+    </div>
+    <div id="speeches"></div>
+    <div class="thinking" id="thinking" style="display:none"><span></span><span></span><span></span> 脑内还在吵……</div>
+    <div id="verdict-zone" style="display:none">
+      <h2 style="margin-top:24px">该由你裁断了</h2>
+      <div class="verdict-btns">
+        <button class="vbtn" data-v="a" id="vb-a">听 A 的</button>
+        <button class="vbtn" data-v="b" id="vb-b">听 B 的</button>
+        <button class="vbtn" data-v="synthesis">我要综合</button>
+      </div>
+      <label for="vnote">想补充一句吗？（可选，留空也能提交）</label>
+      <textarea id="vnote" rows="2" autocomplete="off" placeholder="例如：听野心家的，但先存够六个月生活费"></textarea>
+      <button class="go" id="verdict-go" disabled>生成决策建议书</button>
+    </div>
+    <p class="err" id="meeting-err"></p>
+  </section>
+
+  <!-- 6 建议书 -->
+  <section class="screen report" id="s-report">
+    <p class="eyebrow">决策建议书</p>
+    <h2 id="r-summary">——</h2>
+    <div class="block"><h3>可执行步骤</h3><ul id="r-steps"></ul></div>
+    <div class="block"><h3>各方立场</h3><ul id="r-positions"></ul></div>
+    <div class="block"><h3>风险提示</h3><p id="r-risk"></p></div>
+    <p class="dissent" id="r-dissent"></p>
+    <p class="hint" style="margin-top:20px">内心的会，永远值得再开一次。</p>
+  </section>
+
+</main>
+
+<script>
+const PERSONA = {
+  ambition:{n:'野心家',v:'--ambition',f:'',role:'脑内的征服者'},
+  guardian:{n:'守护者',v:'--guardian',f:'',role:'风险清单的化身'},
+  empath:{n:'共情者',v:'--empath',f:'',role:'替每个人感受的那根神经'},
+  selfcore:{n:'本我',v:'--selfcore',f:'',role:'只问你真正想要什么'},
+  logician:{n:'计算师',v:'--logician',f:'mono',role:'把一切折算成账'},
+  dreamer:{n:'造梦师',v:'--dreamer',f:'italic',role:'用十年后的画面说话'},
+};
+const ORDER = ['node1','node2','node3'];
+// 每节点一句过渡：集体提示"几个声音冒出来了"，贴着各自场景，但不给单个声音贴标签
+const BRIDGES = [
+  '你刚踏进这道门，就听到了几个声音——',
+  '你的手刚碰到那壶水，几个声音就嚷了起来——',
+  '你停在岔路口，几个声音抢着替你拿主意——',
+];
+const state = {topic:'',assets:'',desire:'',scores:{},weights:{},choices:[],cards:[],likes:[],dislikes:[],transcript:[]};
+let NODES={}, nodeIdx=0, duelists=[], duelStmts={}, verdictPick=null;
+
+const $=id=>document.getElementById(id);
+const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0);};
+const pmeta=p=>PERSONA[p]||{n:p,v:'--brass',f:''};
+
+async function postJSON(url,body){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json();}
+async function streamSSE(url,body,onEvent){
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!res.ok||!res.body)throw new Error('连接失败');
+  const reader=res.body.getReader(),dec=new TextDecoder();let buf='';
+  while(true){const {value,done}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});
+    let i;while((i=buf.indexOf('\n\n'))>=0){const raw=buf.slice(0,i);buf=buf.slice(i+2);
+      if(raw.startsWith('data:'))onEvent(JSON.parse(raw.slice(raw.indexOf(':')+1).trim()));}}
+}
+
+/* —— 立题 —— */
+$('start').onclick=async()=>{
+  state.topic=$('topic').value.trim();
+  NODES=await fetch('/api/nodes').then(r=>r.json());
+  nodeIdx=0; show('s-dungeon'); enterNode();
+};
+
+/* —— 地牢 —— */
+async function enterNode(){
+  const id=ORDER[nodeIdx], node=NODES[id];
+  $('node-progress').textContent=`试炼 · 第${'一二三'[nodeIdx]}道门`;
+  $('node-axis').textContent=node.place;   // 中性地点名，不再显示测量轴
+  $('node-scene').textContent=node.scene;
+  $('bridge').textContent = BRIDGES[nodeIdx] || '';
+  $('choose-prompt').textContent='';
+  $('node-voices').innerHTML='<p class="loading">脑内的声音正在浮现……</p>'; $('node-choices').innerHTML='';
+  // 插话流式浮现
+  let firstVoice=true;
+  try{
+    await streamSSE('/api/interject',{node_id:id,state},ev=>{
+      if(ev.done||!ev.text)return;
+      if(firstVoice){ $('node-voices').innerHTML=''; firstVoice=false; }
+      // 地牢里声音匿名：只保留颜色 + 字体（语气），名字留到会议才揭晓
+      const m=pmeta(ev.persona),el=document.createElement('div');
+      el.className='bubble'+(m.f?' '+m.f:'');el.style.setProperty('--c',`var(${m.v})`);
+      el.innerHTML=`<div class="said"></div>`;
+      el.querySelector('.said').textContent=ev.text; $('node-voices').appendChild(el);
+    });
+  }catch(e){/* 插话失败不挡流程 */}
+  if(firstVoice) $('node-voices').innerHTML='';  // 一条插话都没出，清掉 loading
+  // 选项（声音吵完，把决定权交还用户）
+  $('choose-prompt').textContent='吵归吵，手是你的——你怎么做？';
+  Object.entries(node.choices).forEach(([cid,text])=>{
+    const b=document.createElement('button');b.className='choice';
+    b.innerHTML=`<span class="k">${cid}</span>${text}`;
+    b.onclick=()=>choose(id,cid); $('node-choices').appendChild(b);
+  });
+}
+async function choose(id,cid){
+  const r=await postJSON('/api/choose',{node_id:id,choice_id:cid,state});
+  Object.assign(state,r.state);
+  nodeIdx++;
+  if(nodeIdx<ORDER.length) enterNode(); else goCards();
+}
+
+/* —— 卡片 —— */
+async function goCards(){
+  show('s-cards');
+  const r=await postJSON('/api/settle',{state});
+  Object.assign(state,r.state);
+  const stage=$('card-stage');stage.innerHTML='';
+  r.cards.forEach((c,i)=>{
+    const wrap=document.createElement('div');wrap.className='card-stage';
+    wrap.innerHTML=`<div class="card"><div class="face back">INNER CREW</div>
+      <div class="face front"><div class="ctitle">${c.title}</div><div class="ctext">${c.text}</div></div></div>`;
+    stage.appendChild(wrap);
+    setTimeout(()=>wrap.querySelector('.card').classList.add('flipped'),400+i*500);
+  });
+  if(r.jab){
+    const j=document.createElement('p'); j.className='jab'; j.textContent=r.jab;
+    stage.appendChild(j);
+  }
+}
+$('cards-next').onclick=goAsk;
+
+/* —— 自陈 —— */
+async function goAsk(){
+  show('s-ask');
+  const q=await postJSON('/api/ask',{topic:state.topic,state});
+  $('q-logician').textContent='计算师：'+q.logician_q;
+  $('q-selfcore').textContent='本我：'+q.selfcore_q;
+}
+$('ask-next').onclick=()=>{
+  state.assets=$('a-assets').value.trim(); state.desire=$('a-desire').value.trim();
+  goMeeting();
+};
+
+/* —— 会议 —— */
+function addSpeech(ev,stream){
+  const m=pmeta(ev.persona),el=document.createElement('div');
+  el.className='speech';el.style.setProperty('--c',`var(${m.v})`);el.dataset.persona=ev.persona;
+  const stanceTxt=ev.stance==='a'?'支持 A':ev.stance==='b'?'支持 B':ev.stance==='third'?'第三条路':'';
+  el.innerHTML=`<div class="head"><span class="who">${ev.name||m.n}</span>
+    ${stanceTxt?`<span class="stance">${stanceTxt}</span>`:''}
+    ${ev.query?`<span class="searched">🔍 检索「${ev.query}」</span>`:''}
+    <span class="react"><button class="like">👍 有道理</button><button class="dislike">👎 不认同</button></span></div><div class="body"></div>`;
+  const k=ev.persona, uid='u'+state.transcript.length;
+  const likeBtn=el.querySelector('.like'), disBtn=el.querySelector('.dislike');
+  const rm=arr=>{const i=arr.findIndex(x=>x[0]===k); if(i>=0)arr.splice(i,1);};
+  likeBtn.onclick=()=>{const on=likeBtn.classList.toggle('on'); disBtn.classList.remove('on');
+    rm(state.likes); rm(state.dislikes); if(on)state.likes.push([k,uid]);};
+  disBtn.onclick=()=>{const on=disBtn.classList.toggle('on'); likeBtn.classList.remove('on');
+    rm(state.likes); rm(state.dislikes); if(on)state.dislikes.push([k,uid]);};
+  $('speeches').appendChild(el);
+  return el.querySelector('.body');
+}
+function updateBalance(){
+  let a=0,b=0;state.transcript.forEach(e=>{if(e.stance==='a')a++;else if(e.stance==='b')b++;});
+  const tot=a+b||1;$('bal-fill').style.width=(a/tot*100)+'%';
+}
+async function goMeeting(){
+  show('s-meeting');$('speeches').innerHTML='';$('act-label').textContent='第一幕 · 对峙';
+  $('thinking').style.display='block';
+  duelStmts={};
+  // 第一幕
+  let bodies={};
+  await streamSSE('/api/meeting/duel',{state},ev=>{
+    if(ev.event==='start'){bodies[ev.persona]=addSpeech(ev,true);}
+    else if(ev.delta&&bodies[ev.persona]){bodies[ev.persona].textContent+=ev.delta;}
+    else if(ev.event==='end'){duelStmts[ev.persona]=ev.text;
+      state.transcript.push({persona:ev.persona,stance:ev.stance,text:ev.text});}
+    else if(ev.done){duelists=ev.duelists;}
+  });
+  // 天平登场
+  $('bal-a').textContent=pmeta(duelists[0]).n+'阵营';
+  $('bal-b').textContent=pmeta(duelists[1]).n+'阵营';
+  $('balance').style.display='block';updateBalance();
+  // 第二幕
+  $('act-label').textContent='第二幕 · 选边';
+  await streamSSE('/api/meeting/debate',{state,duelists,statements:duelStmts},ev=>{
+    if(ev.done)return;
+    const body=addSpeech(ev,false);body.textContent=ev.text;
+    state.transcript.push({persona:ev.persona,stance:ev.stance,text:ev.text});
+    updateBalance();
+  });
+  // 第三幕
+  $('thinking').style.display='none';
+  $('act-label').textContent='第三幕 · 裁决';
+  $('vb-a').textContent='听 '+pmeta(duelists[0]).n+' 的';
+  $('vb-b').textContent='听 '+pmeta(duelists[1]).n+' 的';
+  $('verdict-zone').style.display='block';
+}
+document.querySelectorAll('.vbtn').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.vbtn').forEach(x=>x.classList.remove('sel'));
+  b.classList.add('sel');verdictPick=b.dataset.v;$('verdict-go').disabled=false;
+});
+$('verdict-go').onclick=async()=>{
+  $('verdict-go').disabled=true;$('verdict-go').textContent='书记正在落笔……';
+  try{
+    const r=await postJSON('/api/meeting/verdict',
+      {state,duelists,verdict:verdictPick,note:$('vnote').value.trim()});
+    renderReport(r);
+  }catch(e){$('meeting-err').textContent='生成失败，再试一次。';$('verdict-go').disabled=false;}
+};
+
+/* —— 建议书 —— */
+function renderReport(r){
+  $('r-summary').textContent=r.verdict_summary||'';
+  $('r-steps').innerHTML=(r.action_steps||[]).map(s=>`<li>${s}</li>`).join('');
+  $('r-positions').innerHTML=(r.persona_positions||[]).map(p=>
+    `<li><b style="color:var(${pmeta_byname(p.persona)})">${p.persona}</b>（${p.stance}）：${p.key_point}</li>`).join('');
+  $('r-risk').textContent=r.risk_notes||'';
+  $('r-dissent').textContent=r.dissent?('「'+r.dissent+'」'):'';
+  show('s-report');
+}
+function pmeta_byname(name){for(const k in PERSONA)if(PERSONA[k].n===name)return PERSONA[k].v;return '--brass';}
+</script>
+</body>
+</html>
