@@ -129,6 +129,89 @@
   .speech .like.on{border-color:var(--brass);color:var(--brass)}
   .speech .dislike.on{border-color:var(--ambition);color:var(--ambition)}
 
+  /* —— 2.0 像素对战舞台（上方 arena，下方沿用气泡 #speeches） —— */
+  #arena{position:relative;height:200px;margin:6px 0 14px;border-radius:5px;overflow:hidden;border:1px solid var(--line);
+    background:radial-gradient(60% 50% at 50% 6%,color-mix(in srgb,#9fb4ff 11%,transparent),transparent 62%),
+      linear-gradient(180deg,#0e1430 0%,#0a0f26 58%,#070a18 100%)}
+  #arena.hidden{display:none}
+  /* 夜空繁星:两层不同节奏 → 此明彼暗地闪烁 */
+  .stars{position:absolute;inset:0;z-index:0;pointer-events:none;animation:twinkle 3.6s ease-in-out infinite;background-repeat:no-repeat;
+    filter:drop-shadow(0 0 1.6px rgba(207,214,255,.75));
+    background-image:radial-gradient(1.3px 1.3px at 8% 22%,#fff,transparent),radial-gradient(1px 1px at 19% 48%,#cdd6ff,transparent),
+      radial-gradient(1.4px 1.4px at 31% 16%,#fff,transparent),radial-gradient(1px 1px at 43% 38%,#e6ecff,transparent),
+      radial-gradient(1.2px 1.2px at 55% 10%,#fff,transparent),radial-gradient(1px 1px at 67% 30%,#cdd6ff,transparent),
+      radial-gradient(1.4px 1.4px at 79% 18%,#fff,transparent),radial-gradient(1.1px 1.1px at 91% 42%,#e6ecff,transparent),
+      radial-gradient(1px 1px at 14% 62%,#fff,transparent),radial-gradient(1.2px 1.2px at 86% 58%,#fff,transparent)}
+  .stars::after{content:"";position:absolute;inset:0;background-repeat:no-repeat;animation:twinkle 2.7s ease-in-out infinite .9s;
+    background-image:radial-gradient(1px 1px at 24% 28%,#fff,transparent),radial-gradient(1.3px 1.3px at 37% 52%,#cdd6ff,transparent),
+      radial-gradient(1px 1px at 49% 20%,#fff,transparent),radial-gradient(1.2px 1.2px at 61% 46%,#e6ecff,transparent),
+      radial-gradient(1px 1px at 73% 24%,#fff,transparent),radial-gradient(1.3px 1.3px at 5% 40%,#fff,transparent),
+      radial-gradient(1px 1px at 95% 30%,#cdd6ff,transparent),radial-gradient(1.1px 1.1px at 50% 58%,#fff,transparent)}
+  @keyframes twinkle{0%,100%{opacity:.55}50%{opacity:1}}
+  /* 场景剪影(远山/松树/草地,内联 SVG) */
+  .scenery{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+  /* 攻击落雷:全场闪白 + 对面头顶一道电 */
+  .flash{position:absolute;inset:0;z-index:6;pointer-events:none;animation:flash .28s ease-out}
+  @keyframes flash{0%{background:rgba(214,226,255,.6)}100%{background:transparent}}
+  .bolt{position:absolute;top:-2%;height:82%;width:18px;z-index:6;pointer-events:none;transform:translateX(-50%);
+    background:linear-gradient(180deg,#fff,#bcd0ff);filter:drop-shadow(0 0 6px #cdd6ff);
+    clip-path:polygon(52% 0,40% 36%,54% 36%,42% 62%,58% 58%,46% 100%,62% 54%,49% 54%,63% 28%,51% 28%);
+    animation:boltflash .42s ease-out}
+  @keyframes boltflash{0%{opacity:0}12%{opacity:1}38%{opacity:.95}52%{opacity:0}66%{opacity:.85}100%{opacity:0}}
+  /* 月光地面 + 暗角 */
+  #arena::before{content:"";position:absolute;left:0;right:0;bottom:0;height:44px;pointer-events:none;z-index:1;
+    background:linear-gradient(180deg,color-mix(in srgb,#9fb4ff 7%,transparent),rgba(0,0,0,.45));
+    border-top:1px solid color-mix(in srgb,#9fb4ff 18%,transparent)}
+  #arena::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;box-shadow:inset 0 0 64px 14px rgba(0,0,0,.55)}
+  .fighter{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:2;
+    display:flex;align-items:flex-end;opacity:0;transition:left .9s cubic-bezier(.5,0,.3,1),opacity .5s ease}
+  .fighter.in{opacity:1}
+  .fighter img{height:108px;width:auto;max-width:118px;display:block;  /* 缩小 + 按身高统一 */
+    filter:drop-shadow(0 3px 4px rgba(0,0,0,.5))}
+  .fighter::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);  /* 脚下投影 */
+    width:46px;height:8px;border-radius:50%;background:rgba(0,0,0,.45);filter:blur(2.5px);z-index:-1}
+  .fighter.face-left img{transform:scaleX(-1)}
+  .fighter.captain{z-index:3}
+  .fighter.captain img{filter:drop-shadow(0 0 7px var(--c)) drop-shadow(0 3px 5px rgba(0,0,0,.5))}
+  /* 6 说话:轻颠 + 增亮辉光 */
+  .fighter.speaking{animation:bob .68s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-4px)}}
+  .fighter.speaking img{filter:drop-shadow(0 0 9px var(--c)) drop-shadow(0 3px 5px rgba(0,0,0,.5))}
+  /* 7 跑位:加快 left 过渡 + 跑动小颠(区分是否翻转) */
+  .fighter.running{transition:left .7s cubic-bezier(.4,0,.4,1),opacity .5s ease}
+  .fighter.running img{animation:run .22s linear infinite}
+  @keyframes run{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+  .fighter.running.face-left img{animation:run-f .22s linear infinite}
+  @keyframes run-f{0%,100%{transform:scaleX(-1) translateY(0)}50%{transform:scaleX(-1) translateY(-3px)}}
+  /* 8 攻击(向对面冲一下)/ 受击(闪白) */
+  .fighter.atk-a{animation:lunge-a .5s ease-out}
+  .fighter.atk-b{animation:lunge-b .5s ease-out}
+  @keyframes lunge-a{0%,100%{transform:translateX(-50%)}35%{transform:translateX(calc(-50% + 16px))}}
+  @keyframes lunge-b{0%,100%{transform:translateX(-50%)}35%{transform:translateX(calc(-50% - 16px))}}
+  .fighter.hit img{animation:hitflash .34s ease-out}
+  @keyframes hitflash{0%{filter:brightness(2.4) drop-shadow(0 0 7px #fff)}100%{filter:none}}
+  /* 9 声势/说服力条(舞台两侧,有地板永不归零) */
+  .momentum{position:absolute;top:10px;height:7px;width:36%;border-radius:4px;overflow:hidden;z-index:4;
+    background:color-mix(in srgb,var(--line) 70%,transparent)}
+  .momentum.left{left:3%} .momentum.right{right:3%}
+  .momentum .fillm{display:block;height:100%;width:50%;transition:width .6s cubic-bezier(.4,0,.3,1)}
+  .momentum.right .fillm{margin-left:auto}
+  /* 10 裁决收束:选中侧肯定(上跳+辉光)、落败侧不消失只淡隐 */
+  .fighter.affirm{animation:affirm .6s ease-out}
+  @keyframes affirm{0%{transform:translateX(-50%)}30%{transform:translateX(-50%) translateY(-12px)}100%{transform:translateX(-50%)}}
+  .fighter.affirm img{filter:drop-shadow(0 0 11px var(--c)) drop-shadow(0 4px 6px rgba(0,0,0,.5)) brightness(1.12)}
+  .fighter.dim{opacity:.4;filter:grayscale(.55)}
+  /* 11 无障碍 + 移动端 */
+  @media (prefers-reduced-motion:reduce){
+    .fighter,.fighter img,.momentum .fillm{transition:opacity .3s ease!important;animation:none!important}
+    .flash,.bolt,.stars,.stars::after{animation:none!important} .bolt{display:none!important}
+  }
+  @media (max-width:560px){
+    #arena{height:166px}
+    .fighter img{height:82px}
+    .fighter::after{width:36px}
+  }
+
   .verdict-btns{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0}
   .vbtn{flex:1;min-width:140px;background:var(--ground-2);border:1px solid var(--line);color:var(--bone);
     border-radius:3px;padding:14px;font-size:1rem}
@@ -198,6 +281,7 @@
   <!-- 5 会议 -->
   <section class="screen" id="s-meeting">
     <p class="eyebrow" id="act-label">第一幕 · 对峙</p>
+    <div id="arena" class="hidden"></div>
     <div class="balance" id="balance" style="display:none">
       <div class="bar"><div class="fill" id="bal-fill" style="width:50%"></div></div>
       <div class="labels"><span class="la" id="bal-a">——</span><span class="lb" id="bal-b">——</span></div>
@@ -383,32 +467,149 @@ function addSpeech(ev,stream){
 function updateBalance(){
   let a=0,b=0;state.transcript.forEach(e=>{if(e.stance==='a')a++;else if(e.stance==='b')b++;});
   const tot=a+b||1;$('bal-fill').style.width=(a/tot*100)+'%';
+  // 声势条:50/50 起步,按 a∶b 此消彼长,夹在 [15,85] 永不归零(杜绝 KO 观感)
+  if(arenaOn){
+    const ma=(a+b===0)?50:Math.max(15,Math.min(85,a/(a+b)*100));
+    const fa=$('fillm-a'),fb=$('fillm-b');
+    if(fa)fa.style.width=ma+'%';
+    if(fb)fb.style.width=(100-ma)+'%';
+  }
+}
+/* —— 2.0 像素对战舞台 —— */
+const SPRITE_IDS=['ambition','guardian','empath','selfcore','logician','dreamer'];
+let fighters={}, arenaOn=true, campCount={a:0,b:0,third:0};
+const SCENERY_SVG=`<svg class="scenery" viewBox="0 0 600 200" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0,150 Q150,128 320,148 T600,140 L600,200 L0,200 Z" fill="#0c1322"/>
+  <g fill="#0e1a14">
+    <g transform="translate(46,150)"><rect x="-2" y="-6" width="4" height="12" fill="#10130f"/><polygon points="0,-44 -16,-6 16,-6"/><polygon points="0,-58 -13,-26 13,-26"/><polygon points="0,-70 -10,-44 10,-44"/></g>
+    <g transform="translate(94,156)"><rect x="-2" y="-5" width="4" height="10" fill="#10130f"/><polygon points="0,-34 -12,-5 12,-5"/><polygon points="0,-46 -9,-22 9,-22"/></g>
+    <g transform="translate(558,150)"><rect x="-2" y="-6" width="4" height="12" fill="#10130f"/><polygon points="0,-46 -16,-6 16,-6"/><polygon points="0,-60 -13,-28 13,-28"/><polygon points="0,-72 -10,-46 10,-46"/></g>
+    <g transform="translate(510,156)"><rect x="-2" y="-5" width="4" height="10" fill="#10130f"/><polygon points="0,-32 -11,-5 11,-5"/><polygon points="0,-44 -8,-22 8,-22"/></g>
+  </g>
+  <path d="M0,168 Q160,156 320,166 T600,160 L600,200 L0,200 Z" fill="#14241a"/>
+  <path d="M0,170 Q160,158 320,168 T600,162" fill="none" stroke="#23381f" stroke-width="2"/>
+  <g stroke="#2c4526" stroke-width="1.4" stroke-linecap="round">
+    <path d="M30,172 l-2,-6"/><path d="M34,172 l1,-7"/><path d="M120,176 l-2,-6"/><path d="M124,176 l1,-7"/>
+    <path d="M250,174 l-2,-6"/><path d="M256,174 l1,-7"/><path d="M360,176 l-2,-6"/><path d="M366,176 l1,-7"/>
+    <path d="M470,172 l-2,-6"/><path d="M476,172 l1,-7"/><path d="M560,176 l-2,-6"/><path d="M566,176 l1,-7"/>
+  </g>
+</svg>`;
+function arenaLightning(stance){                          // 落雷:全场闪白 + 对面头顶一道电
+  const a=$('arena'); if(!a||!arenaOn)return;
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const flash=document.createElement('div'); flash.className='flash'; a.appendChild(flash);
+  setTimeout(()=>flash.remove(),300);
+  const bolt=document.createElement('div'); bolt.className='bolt';
+  bolt.style.left=(stance==='a'?78:22)+'%'; a.appendChild(bolt);   // 对面阵营位置
+  setTimeout(()=>bolt.remove(),440);
+}
+function makeFighter(pid){
+  const m=pmeta(pid), el=document.createElement('div');
+  el.className='fighter'; el.dataset.persona=pid; el.style.setProperty('--c',`var(${m.v})`);
+  const img=document.createElement('img'); img.src=`/sprites/${pid}.png`; img.alt=m.n;
+  img.onerror=()=>{arenaOn=false; const a=$('arena'); if(a)a.classList.add('hidden');}; // 降级:任一图挂了退回纯气泡
+  el.appendChild(img); $('arena').appendChild(el); fighters[pid]=el; return el;
+}
+function arenaLineup(){
+  const a=$('arena'); if(!a)return;
+  a.innerHTML=''; fighters={}; campCount={a:0,b:0,third:0}; a.classList.toggle('hidden',!arenaOn);
+  if(!arenaOn)return;
+  a.insertAdjacentHTML('beforeend','<div class="stars"></div>');   // 夜空繁星
+  a.insertAdjacentHTML('beforeend',SCENERY_SVG);                   // 远山/松树/草地剪影
+  SPRITE_IDS.forEach((pid,i)=>{
+    const el=makeFighter(pid);
+    el.style.left=(16+i*13.6)+'%';                       // 居中一排;初始即定位,不触发滑动
+    requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('in'))); // 淡入登场
+  });
+  arenaMomentum();                                        // 两侧声势条
+}
+function arenaMomentum(){                                  // 建两条声势/说服力条(颜色在 duelists 确定后设)
+  $('arena').insertAdjacentHTML('beforeend',
+    '<div class="momentum left" id="mom-a"><span class="fillm" id="fillm-a"></span></div>'+
+    '<div class="momentum right" id="mom-b"><span class="fillm" id="fillm-b"></span></div>');
+}
+function arenaSendCaptain(pid,side){                       // side 'a'=左,'b'=右
+  if(!arenaOn)return;
+  const el=fighters[pid]; if(!el)return;
+  el.classList.add('captain','in'); el.dataset.camp=side;
+  if(side==='b') el.classList.add('face-left');           // 右侧队长转身朝中央
+  el.style.left = side==='a' ? '15%' : '85%';             // left 变化→transition 触发"走位"
+}
+function arenaSpeak(pid,on){                               // 6 说话动效开关
+  if(!arenaOn)return;
+  const el=fighters[pid]; if(el)el.classList.toggle('speaking',on);
+}
+function arenaJoinCamp(pid,stance){                        // 7 配角跑向阵营(a左/b右/third居中)
+  if(!arenaOn)return;
+  const el=fighters[pid]; if(!el)return;
+  el.classList.remove('face-left'); el.dataset.camp=stance;
+  let left;
+  if(stance==='a'){ left=23+campCount.a*5.5; campCount.a++; el.style.zIndex=2+campCount.a; }      // 抱团:间距收窄+叠靠
+  else if(stance==='b'){ left=77-campCount.b*5.5; el.classList.add('face-left'); campCount.b++; el.style.zIndex=2+campCount.b; }
+  else { left=46+campCount.third*5; campCount.third++; }
+  el.classList.add('in','running'); el.style.left=left+'%';
+  setTimeout(()=>el.classList.remove('running'),720);     // 跑动结束去掉跑步颠
+}
+function arenaAttack(pid,stance){                          // 8 向对面出击 + 对面受击闪白
+  if(!arenaOn||stance==='third')return;
+  const el=fighters[pid]; if(!el)return;
+  const cls=stance==='a'?'atk-a':'atk-b';
+  el.classList.add(cls); setTimeout(()=>el.classList.remove(cls),520);
+  setTimeout(()=>arenaLightning(stance),130);             // 冲上去的同时落雷
+  const opp=stance==='a'?'b':'a';
+  Object.values(fighters).forEach(f=>{
+    if(f.dataset.camp===opp){ f.classList.add('hit'); setTimeout(()=>f.classList.remove('hit'),340); }
+  });
+}
+function arenaVerdict(pick){                              // 10 选中侧肯定、其余淡隐(不消失=部分不被消灭)
+  if(!arenaOn)return;
+  Object.values(fighters).forEach(f=>{
+    f.classList.remove('dim','affirm','speaking');
+    const camp=f.dataset.camp, win = pick==='synthesis' ? true : camp===pick;
+    if(win) f.classList.add('affirm'); else if(camp) f.classList.add('dim');
+  });
+}
+function arenaSit(){                                      // 落座:全员回中央一排、卸下战斗态(呼应"坐下来开会")
+  if(!arenaOn)return;
+  SPRITE_IDS.filter(p=>fighters[p]).forEach((p,i)=>{ const f=fighters[p];
+    f.classList.remove('dim','affirm','speaking','captain','face-left','running');
+    f.classList.add('in'); f.style.left=(18+i*12.8)+'%'; });
 }
 async function goMeeting(){
   show('s-meeting');$('speeches').innerHTML='';$('act-label').textContent='第一幕 · 对峙';
   $('thinking').style.display='block';
   duelStmts={};
+  arenaLineup();              // 开场:六小人在舞台中央列队
   // 第一幕
   let bodies={},duelSeq=[];
   await streamSSE('/api/meeting/duel',{state},ev=>{
     if(ev.event==='start'){ // 串行:首位是 A(靠左)、次位是 B(靠右);stance 在 end 才到,这里按顺序先定方向
       const stance=duelSeq.length===0?'a':'b'; duelSeq.push(ev.persona);
+      arenaSendCaptain(ev.persona,stance);   // 队长走向各自一侧、转身朝中央
       bodies[ev.persona]=addSpeech({...ev,stance},true);}
-    else if(ev.delta&&bodies[ev.persona]){bodies[ev.persona].textContent+=ev.delta;}
-    else if(ev.event==='end'){duelStmts[ev.persona]=ev.text;
+    else if(ev.delta&&bodies[ev.persona]){bodies[ev.persona].textContent+=ev.delta; arenaSpeak(ev.persona,true);}
+    else if(ev.event==='end'){duelStmts[ev.persona]=ev.text; arenaSpeak(ev.persona,false);
       state.transcript.push({persona:ev.persona,stance:ev.stance,text:ev.text});}
     else if(ev.done){duelists=ev.duelists;}
   });
-  // 天平登场
+  // 天平 / 声势条登场
   $('bal-a').textContent=pmeta(duelists[0]).n+'阵营';
   $('bal-b').textContent=pmeta(duelists[1]).n+'阵营';
-  $('balance').style.display='block';updateBalance();
+  $('balance').style.display = arenaOn ? 'none' : 'block';   // 有舞台用舞台声势条,否则退回天平
+  if(arenaOn){
+    const fa=$('fillm-a'),fb=$('fillm-b');
+    if(fa)fa.style.background=`var(${pmeta(duelists[0]).v})`;
+    if(fb)fb.style.background=`var(${pmeta(duelists[1]).v})`;
+  }
+  updateBalance();
   // 第二幕
   $('act-label').textContent='第二幕 · 选边';
   await streamSSE('/api/meeting/debate',{state,duelists,statements:duelStmts},ev=>{
     if(ev.done)return;
     const body=addSpeech(ev,false);body.textContent=ev.text;
     state.transcript.push({persona:ev.persona,stance:ev.stance,text:ev.text});
+    arenaJoinCamp(ev.persona,ev.stance);                    // 跑向阵营
+    setTimeout(()=>arenaAttack(ev.persona,ev.stance),700);  // 跑到位后再出击
     updateBalance();
   });
   // 第三幕
@@ -421,9 +622,11 @@ async function goMeeting(){
 document.querySelectorAll('.vbtn').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.vbtn').forEach(x=>x.classList.remove('sel'));
   b.classList.add('sel');verdictPick=b.dataset.v;$('verdict-go').disabled=false;
+  arenaVerdict(verdictPick);   // 选中侧当场"肯定",落败侧淡隐(不消失)
 });
 $('verdict-go').onclick=async()=>{
   $('verdict-go').disabled=true;$('verdict-go').textContent='书记正在落笔……';
+  arenaSit();                  // 全员落座收束,趁书记落笔时把会"开完"
   try{
     const r=await postJSON('/api/meeting/verdict',
       {state,duelists,verdict:verdictPick,note:$('vnote').value.trim()});
