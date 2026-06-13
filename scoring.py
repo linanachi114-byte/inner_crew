@@ -83,14 +83,23 @@ def tally_camps(transcript) -> dict:
 
 
 def parse_stance(text: str, name_a: str, name_b: str) -> str | None:
-    """从发言首行解析表态：返回 'a' / 'b' / 'third'；解析失败返回 None。"""
-    lines = (text or "").strip().splitlines()
-    first = lines[0] if lines else ""
-    if f"支持{name_a}" in first:
+    """解析表态：返回 'a' / 'b' / 'third'；解析失败返回 None。
+
+    放宽以扛 flash 格式漂移：扫前 3 行（表态偶尔落第二行）、去空白/括号/星号、
+    容"支持(的是)名字"。仅看头部避免正文里的提及误判。
+    """
+    import re
+
+    raw = (text or "").strip()
+    if not raw:
+        return None
+    head = "\n".join(raw.splitlines()[:3])
+    head = re.sub(r"[\s【】\[\]「」（）()*_·\-—\"'`]+", "", head)  # 去包裹符与空白
+    if re.search(rf"支持(?:的是)?{re.escape(name_a)}", head):
         return "a"
-    if f"支持{name_b}" in first:
+    if re.search(rf"支持(?:的是)?{re.escape(name_b)}", head):
         return "b"
-    if "第三条路" in first:
+    if "第三条路" in head:
         return "third"
     return None
 

@@ -66,7 +66,7 @@ class AskRequest(BaseModel):
 
 ASK_SYS = (
     "你要生成两个会前问题，把语义骨架锁死、只改措辞：\n"
-    "logician_q = 计算师问“你现实里有什么牌/资源”（资源盘点：存款、技能、人脉、时间）；\n"
+    "logician_q = 计算师问“你现实里有什么牌/资源”（资源盘点：存款、技能、人脉、时间、健康、试错的余地……等等）；\n"
     "selfcore_q = 本我问“你到底想要什么”（真实欲望，直白、戳破伪装）。\n"
     "结合用户的议题和他在试炼里的选择行为来改写问法：至少一问要点到他的具体选择"
     "（如“你三道门都先观察”），让问题贴着这个人。"
@@ -192,7 +192,7 @@ async def _debate_one(pid: str, user: str, name_a: str, name_b: str, topic: str 
     """
     is_logician = pid == "logician"
     text, query = "", ""
-    for _ in range(2):
+    for _ in range(3):   # 多给一次重试:451 审查/返空是随机的,flash 重掷常能过(parse 放宽后此循环主扛 451)
         backoff = 0.3
         try:
             if is_logician:
