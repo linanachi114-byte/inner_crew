@@ -105,6 +105,18 @@
 
   .speech{padding:13px 18px;border-left:3px solid var(--c);border-radius:2px;margin-bottom:12px;
     background:linear-gradient(100deg,color-mix(in srgb,var(--c) 12%,transparent),transparent 72%);animation:rise .5s both}
+  /* 方向统一:对峙(duel,主角更宽)与选边(debate,配角更窄)都按 stance 靠边——支持A靠左/支持B靠右 */
+  .speech.duel{max-width:88%}
+  .speech.debate{max-width:80%;padding:10px 16px}
+  .speech.side-a{margin-right:auto}
+  .speech.side-b{margin-left:auto;border-left:none;border-right:3px solid var(--c);
+    background:linear-gradient(260deg,color-mix(in srgb,var(--c) 12%,transparent),transparent 72%)}
+  .speech.side-b .head{flex-direction:row-reverse}
+  .speech.side-b .react{margin-left:0;margin-right:auto}
+  .speech.side-third{margin:0 auto;max-width:72%;border-left:3px dashed var(--c);
+    background:color-mix(in srgb,var(--c) 8%,transparent)}
+  .speech.side-third .head{justify-content:center}
+  .speech.side-third .react{margin-left:0}
   .speech .head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
   .speech .who{color:var(--c);font-weight:500;letter-spacing:.1em}
   .speech .stance{font-size:.72rem;border:1px solid var(--c);color:var(--c);border-radius:10px;padding:1px 9px;opacity:.85}
@@ -131,6 +143,7 @@
   .report .dissent{font-style:italic;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;margin-top:8px}
   .hint{font-size:.84rem;color:var(--faint);margin-top:6px}
   .err{color:var(--ambition);font-size:.9rem;margin-top:10px}
+  .q-pending{font-style:italic;opacity:.55;animation:blink 1.4s ease-in-out infinite}
   .loading,.thinking{color:var(--faint);font-style:italic;font-size:.95rem;padding:8px 2px}
   .thinking span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--brass);
     margin-right:2px;animation:blink 1.2s infinite both}
@@ -319,9 +332,19 @@ $('cards-next').onclick=goAsk;
 /* —— 自陈 —— */
 async function goAsk(){
   show('s-ask');
-  const q=await postJSON('/api/ask',{topic:state.topic,state});
-  $('q-logician').textContent='计算师：'+q.logician_q;
-  $('q-selfcore').textContent='本我：'+q.selfcore_q;
+  // 问题动态生成中，先占位、暂时锁住输入与"开会"按钮
+  $('q-logician').textContent='计算师：正在斟酌要问你什么……';
+  $('q-selfcore').textContent='本我：正在斟酌要问你什么……';
+  $('q-logician').classList.add('q-pending'); $('q-selfcore').classList.add('q-pending');
+  $('ask-next').disabled=true;
+  try{
+    const q=await postJSON('/api/ask',{topic:state.topic,state});
+    $('q-logician').textContent='计算师：'+q.logician_q;
+    $('q-selfcore').textContent='本我：'+q.selfcore_q;
+  }finally{
+    $('q-logician').classList.remove('q-pending'); $('q-selfcore').classList.remove('q-pending');
+    $('ask-next').disabled=false;
+  }
 }
 $('ask-next').onclick=()=>{
   state.assets=$('a-assets').value.trim(); state.desire=$('a-desire').value.trim();
@@ -331,8 +354,18 @@ $('ask-next').onclick=()=>{
 /* —— 会议 —— */
 function addSpeech(ev,stream){
   const m=pmeta(ev.persona),el=document.createElement('div');
-  el.className='speech';el.style.setProperty('--c',`var(${m.v})`);el.dataset.persona=ev.persona;
-  const stanceTxt=ev.stance==='a'?'支持 A':ev.stance==='b'?'支持 B':ev.stance==='third'?'第三条路':'';
+  el.className='speech';
+  // 方向统一:对峙(duel)与选边(debate)都按 stance 靠边——支持A靠左/支持B靠右/第三条路居中
+  el.classList.add(stream?'duel':'debate',
+    ev.stance==='a'?'side-a':ev.stance==='b'?'side-b':'side-third');
+  el.style.setProperty('--c',`var(${m.v})`);el.dataset.persona=ev.persona;
+  // 立场标签只在选边阶段显示,且把 A/B 换成具体人格名;对峙阶段发言者本身就是那一极,不显示
+  let stanceTxt='';
+  if(!stream && duelists.length===2){
+    stanceTxt=ev.stance==='a'?'支持'+pmeta(duelists[0]).n
+            :ev.stance==='b'?'支持'+pmeta(duelists[1]).n
+            :ev.stance==='third'?'第三条路':'';
+  }
   el.innerHTML=`<div class="head"><span class="who">${ev.name||m.n}</span>
     ${stanceTxt?`<span class="stance">${stanceTxt}</span>`:''}
     ${ev.query?`<span class="searched">🔍 检索「${ev.query}」</span>`:''}
@@ -356,9 +389,11 @@ async function goMeeting(){
   $('thinking').style.display='block';
   duelStmts={};
   // 第一幕
-  let bodies={};
+  let bodies={},duelSeq=[];
   await streamSSE('/api/meeting/duel',{state},ev=>{
-    if(ev.event==='start'){bodies[ev.persona]=addSpeech(ev,true);}
+    if(ev.event==='start'){ // 串行:首位是 A(靠左)、次位是 B(靠右);stance 在 end 才到,这里按顺序先定方向
+      const stance=duelSeq.length===0?'a':'b'; duelSeq.push(ev.persona);
+      bodies[ev.persona]=addSpeech({...ev,stance},true);}
     else if(ev.delta&&bodies[ev.persona]){bodies[ev.persona].textContent+=ev.delta;}
     else if(ev.event==='end'){duelStmts[ev.persona]=ev.text;
       state.transcript.push({persona:ev.persona,stance:ev.stance,text:ev.text});}

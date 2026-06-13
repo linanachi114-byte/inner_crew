@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目状态
 
-黑客松项目 **Inner Crew v2**（Track 02，比赛日 6/14）。当前仓库仅有总计划 `inner-crew-v2-详细执行计划.md`，**代码尚未开始**——动工前先读该计划，它是唯一的事实来源（人格设定、prompt 模板、矩阵、卡片、三幕结构、API 契约、砍单优先级全在里面）。
+黑客松项目 **Inner Crew v2**（Track 02，比赛日 6/14）。总计划在 `docs/inner-crew-v2-详细执行计划.md`，它是唯一的事实来源（人格设定、prompt 模板、矩阵、卡片、三幕结构、API 契约、砍单优先级全在里面）；设计理念与理论背书见 `docs/DESIGN.md`，计划外的实测迭代记录见 `CHANGELOG.md`。
 
 一句话定位：重要决策时帮用户把脑内"没开成的会"开起来。
 主线：**立题 → 三步地牢（测人格）→ 想法卡片结算 → 会前自陈问询 → 决策会议三幕 → 决策建议书**。
@@ -41,11 +41,17 @@ main.py          # FastAPI app、路由、SSE 编排
 personas.py      # 6 个 Agent 定义 + PERSONA_PROMPTS + web_search 工具
 constants.py     # NODES（三节点矩阵）、CARDS、OPPOSITION 等纯数据
 scoring.py       # 算分/结算/排序等纯函数（无 LLM、可单测）
-static/index.html# vibe 前端（档位 A 单文件）
+models.py        # 模型配置中枢（DEFAULT/JSON/TOOL/VERDICT 模型、reasoning_extra）
+search.py        # Tavily 检索（计算师工具用，降级不抛）
+static/index.html# vibe 前端（单文件 SPA）
 .env             # StepFun key + base_url + 模型名 / 搜索 key，仅后端，勿提交
+docs/            # DESIGN.md、总计划、PHASEx-acceptance.md、screenshots/
+plan/            # PHASE1-4.md 各阶段执行清单
+scripts/         # 测试脚本（blind_test / balance_check / meeting_e2e，需 PYTHONPATH=.）
+CLAUDE.md CHANGELOG.md  # 项目指南 / 计划外实测迭代记录（留根）
 ```
 
-逻辑（纯函数）与数据（常量）与编排（路由）分文件；前端产物一律进 `static/`。
+逻辑（纯函数）与数据（常量）与编排（路由）分文件；前端产物一律进 `static/`；文档/计划/脚本各归其位，根目录只留源码、配置、CLAUDE.md、CHANGELOG.md。
 
 ## API 端点
 
