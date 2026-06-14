@@ -36,6 +36,52 @@
   .lede{color:var(--muted);max-width:46ch;margin-bottom:36px}
   .lede-crew{display:inline-block;margin-top:10px;color:var(--brass);opacity:.9;font-size:.96rem}
   #s-prelude.active{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:74vh;text-align:center}
+
+  /* 封面页：整张海报作首页 */
+  #s-cover.active{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    min-height:100vh;text-align:center;padding-top:clamp(10px,2vw,24px)}
+  .cover-frame{position:relative;width:min(440px,92vw);border-radius:10px;overflow:hidden;
+    box-shadow:0 30px 80px -28px rgba(0,0,0,.85),0 0 0 1px var(--line),
+      0 0 60px -20px color-mix(in srgb,var(--brass) 40%,transparent);
+    animation:coverIn 1.1s cubic-bezier(.2,.7,.2,1) both}
+  .cover-frame img{display:block;width:100%;height:auto}
+  .cover-frame::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:10px;
+    box-shadow:inset 0 0 90px rgba(0,0,0,.45)}
+  @keyframes coverIn{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
+  .cover-cta{width:min(440px,92vw);margin-top:clamp(20px,4vw,30px);display:flex;flex-direction:column;align-items:center;gap:14px}
+  .cover-cta .enter{position:relative;width:100%;font-family:var(--serif);font-weight:700;
+    font-size:clamp(1.05rem,3.6vw,1.32rem);letter-spacing:.12em;color:#1a140c;cursor:pointer;
+    padding:18px 26px;border:none;border-radius:4px;overflow:hidden;
+    background:linear-gradient(100deg,#b8923f,var(--brass) 45%,#e7ca7f 75%,var(--brass));
+    box-shadow:0 14px 34px -12px color-mix(in srgb,var(--brass) 70%,transparent),
+      inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.18);
+    transition:transform .25s,box-shadow .35s}
+  .cover-cta .enter::before{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);
+    transform:skewX(-18deg);animation:sheen 3.4s ease-in-out infinite}
+  @keyframes sheen{0%,55%{left:-120%}80%,100%{left:130%}}
+  .cover-cta .enter:hover{transform:translateY(-2px);
+    box-shadow:0 20px 46px -12px color-mix(in srgb,var(--brass) 85%,transparent),
+      inset 0 1px 0 rgba(255,255,255,.5),inset 0 -2px 0 rgba(0,0,0,.18)}
+  .cover-cta .enter:active{transform:translateY(0)}
+  .cover-cta .sub{font-size:.78rem;letter-spacing:.34em;text-transform:uppercase;color:var(--faint)}
+
+  /* 第一页：整体居中 + 略放大 */
+  #s-intro.active{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:82vh;text-align:center}
+  #s-intro .eyebrow{font-size:.94rem;letter-spacing:.52em;margin-bottom:24px;color:var(--brass);
+    display:inline-flex;align-items:center;gap:18px;
+    text-shadow:0 0 24px color-mix(in srgb,var(--brass) 48%,transparent)}
+  #s-intro .eyebrow::before,#s-intro .eyebrow::after{content:"";width:38px;height:1px;opacity:.75;
+    background:linear-gradient(90deg,transparent,var(--brass))}
+  #s-intro .eyebrow::after{transform:scaleX(-1)}
+  #s-intro h1{font-size:clamp(2.3rem,7.2vw,3.7rem);margin-bottom:16px}
+  #s-intro .lede{font-size:1.14rem;margin-bottom:34px}
+  #s-intro label{font-size:1.32rem;font-weight:400;color:var(--bone);letter-spacing:.03em;
+    line-height:1.5;margin-bottom:18px;text-shadow:0 1px 18px rgba(0,0,0,.4)}
+  #s-intro label::after{content:"";display:block;width:40px;height:2px;margin:14px auto 0;
+    background:linear-gradient(90deg,transparent,var(--brass),transparent);opacity:.8}
+  #s-intro textarea{max-width:560px;font-size:1.18rem}
+  #s-intro .go{font-size:1.05rem;padding:15px 32px}
   .prelude-line{color:var(--brass);font-size:1.2rem;line-height:2.05;max-width:32ch;margin:0 0 42px;animation:fade 1s both}
   .bridge{color:var(--muted);font-style:italic;font-size:1rem;margin:4px 0 2px}
   .choose-prompt{color:var(--brass);font-size:1.05rem;letter-spacing:.02em;margin:22px 0 10px}
@@ -135,7 +181,8 @@
   .speech .dislike.on{border-color:var(--ambition);color:var(--ambition)}
 
   /* —— 2.0 像素对战舞台（上方 arena，下方沿用气泡 #speeches） —— */
-  #arena{position:relative;height:200px;margin:6px 0 14px;border-radius:5px;overflow:hidden;border:1px solid var(--line);
+  /* 画框高度翻倍:200→400px(宽度不变,仍随 .wrap 列宽) */
+  #arena{position:relative;height:400px;margin:6px 0 14px;border-radius:5px;overflow:hidden;border:1px solid var(--line);
     background:radial-gradient(60% 50% at 50% 6%,color-mix(in srgb,#9fb4ff 11%,transparent),transparent 62%),
       linear-gradient(180deg,#0e1430 0%,#0a0f26 58%,#070a18 100%)}
   #arena.hidden{display:none}
@@ -256,6 +303,39 @@
     background:color-mix(in srgb,var(--logician) 14%,transparent);border-radius:4px;padding:1px 7px;margin-bottom:6px}
   .focus-text{color:#f1ead9;line-height:1.65;font-size:1.04rem}
   #speeches.bw{filter:grayscale(1) opacity(.5);transition:filter .4s ease}
+  /* —— 发言切入幕（逆转裁判式）：发言者放大占满画框 + 名牌 + 底部对话框；支持A靠左/支持B靠右镜像 —— */
+  .cutin{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .24s ease;
+    background:
+      radial-gradient(70% 88% at 30% 54%,color-mix(in srgb,var(--c) 40%,transparent),transparent 70%),
+      linear-gradient(180deg,rgba(5,6,14,.46) 0%,rgba(5,6,14,.30) 42%,rgba(5,6,14,.86) 100%)}
+  .cutin.side-right{background:
+      radial-gradient(70% 88% at 70% 54%,color-mix(in srgb,var(--c) 40%,transparent),transparent 70%),
+      linear-gradient(180deg,rgba(5,6,14,.46) 0%,rgba(5,6,14,.30) 42%,rgba(5,6,14,.86) 100%)}
+  .cutin.show{opacity:1;animation:cutinshake .3s ease-out}
+  @keyframes cutinshake{0%,100%{transform:translateX(0)}18%{transform:translateX(-5px)}38%{transform:translateX(5px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
+  /* 漫画式集中线(从角色侧聚拢的冲击线) */
+  .cutin::before{content:"";position:absolute;inset:-30%;z-index:0;opacity:.42;mix-blend-mode:screen;pointer-events:none;
+    background:repeating-conic-gradient(from 0deg at 30% 60%,transparent 0deg 2.6deg,color-mix(in srgb,var(--c) 22%,transparent) 2.6deg 3.4deg)}
+  .cutin.side-right::before{background:repeating-conic-gradient(from 0deg at 70% 60%,transparent 0deg 2.6deg,color-mix(in srgb,var(--c) 22%,transparent) 2.6deg 3.4deg)}
+  .cutin-char{position:absolute;left:0;bottom:14%;height:82%;width:auto;z-index:1;image-rendering:pixelated;
+    filter:drop-shadow(0 0 24px color-mix(in srgb,var(--c) 78%,transparent)) drop-shadow(0 10px 14px rgba(0,0,0,.62))}
+  .cutin.side-right .cutin-char{left:auto;right:0;transform:scaleX(-1)}   /* 右侧:镜像朝向中央 */
+  .cutin.show .cutin-char{animation:cutinpop .46s cubic-bezier(.2,.92,.26,1)}
+  @keyframes cutinpop{0%{scale:.84;translate:-26px 0;opacity:.1}56%{scale:1.06;translate:8px 0}100%{scale:1;translate:0;opacity:1}}
+  .cutin-q{position:absolute;right:3.5%;top:12px;z-index:3;font-family:var(--mono);font-size:.7rem;color:#e2f4ef;letter-spacing:-.01em;
+    background:color-mix(in srgb,var(--logician) 42%,rgba(0,0,0,.55));border:1px solid color-mix(in srgb,var(--logician) 60%,transparent);
+    border-radius:5px;padding:2px 9px}
+  .cutin.side-right .cutin-q{right:auto;left:3.5%}
+  .cutin-name{position:absolute;left:0;bottom:56px;z-index:3;color:#fff;font-weight:700;letter-spacing:.1em;font-size:.94rem;
+    background:linear-gradient(180deg,color-mix(in srgb,var(--c) 96%,#fff),color-mix(in srgb,var(--c) 90%,#000) 22%,color-mix(in srgb,var(--c) 60%,#000));
+    padding:6px 26px 6px 16px;clip-path:polygon(0 0,100% 0,86% 100%,0 100%);box-shadow:0 2px 12px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.35);
+    transform:translateX(-100%);transition:transform .34s cubic-bezier(.2,.8,.2,1) .12s}
+  .cutin.side-right .cutin-name{left:auto;right:0;padding:6px 16px 6px 26px;clip-path:polygon(14% 0,100% 0,100% 100%,0 100%);transform:translateX(100%)}
+  .cutin.show .cutin-name{transform:none}
+  .cutin-box{position:absolute;left:0;right:0;bottom:0;z-index:2;min-height:54px;padding:13px 22px 15px;
+    background:linear-gradient(180deg,rgba(6,7,16,.42),rgba(6,7,16,.92));
+    border-top:2px solid color-mix(in srgb,var(--c) 78%,transparent);
+    color:#f4efe2;font-size:1.06rem;line-height:1.5;text-shadow:0 1px 7px rgba(0,0,0,.9)}
   /* 11 无障碍 + 移动端 */
   @media (prefers-reduced-motion:reduce){
     .fighter,.fighter img,.momentum .fillm,.stars,.stars::after{transition:opacity .3s ease!important;animation:none!important}
@@ -264,11 +344,17 @@
     .speech.turning,.speech.turning .searched,.fighter.turning-glow img,.momentum.pulse{animation:none!important}
     .focus-card,.focus-card.descend{transition:opacity .3s ease!important} #speeches.bw{transition:filter .3s ease!important}
     .verdict-caption,.veil{transition:opacity .3s ease!important}
+    .cutin.show,.cutin.show .cutin-char{animation:none!important}
+    .cutin .cutin-char{scale:1!important;translate:0 0!important}
+    .cutin .cutin-name{transition:none!important;transform:none!important}
   }
   @media (max-width:560px){
-    #arena{height:166px}
+    #arena{height:332px}
     .fighter img{height:82px}
     .fighter::after{width:36px}
+    .cutin-box{font-size:.96rem;padding:10px 16px 12px}
+    .cutin-name{bottom:50px;font-size:.84rem}
+    .cutin-char{height:82%;bottom:14%}
   }
   #director{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:60;display:flex;gap:12px;align-items:center;
     background:rgba(12,14,22,.92);border:1px solid var(--line);border-radius:9px;padding:7px 14px;font-size:.8rem;color:var(--muted)}
@@ -298,13 +384,75 @@
   .thinking span:nth-child(2){animation-delay:.2s}.thinking span:nth-child(3){animation-delay:.4s}
   @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
   @media (max-width:560px){ .verdict-btns{flex-direction:column} .vbtn{min-width:0} }
+  /* —— BGM 开关:金色声波,播放时律动,关闭时压平变暗 —— */
+  #bgm-toggle{position:fixed;right:20px;bottom:20px;z-index:100;width:44px;height:44px;border-radius:50%;
+    border:1px solid color-mix(in srgb,var(--brass) 32%,var(--line));cursor:pointer;
+    background:radial-gradient(125% 125% at 50% 0%,color-mix(in srgb,var(--brass) 13%,var(--ground-2)),var(--ground-2));
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(6px);opacity:.7;transition:opacity .3s,transform .2s,box-shadow .3s,border-color .3s}
+  #bgm-toggle:hover{opacity:1;transform:translateY(-1px);
+    border-color:color-mix(in srgb,var(--brass) 58%,transparent);box-shadow:0 6px 22px -10px var(--brass)}
+  #bgm-toggle .eq{display:flex;align-items:center;gap:3px;height:17px}
+  #bgm-toggle .eq i{width:2.5px;height:5px;border-radius:2px;background:var(--brass);transform-origin:center;
+    transition:height .45s,background .45s,opacity .45s}
+  #bgm-toggle.playing .eq i{animation:eqbar 1.05s ease-in-out infinite}
+  #bgm-toggle.playing .eq i:nth-child(1){animation-delay:-.50s}
+  #bgm-toggle.playing .eq i:nth-child(2){animation-delay:-.15s}
+  #bgm-toggle.playing .eq i:nth-child(3){animation-delay:-.35s}
+  #bgm-toggle.playing .eq i:nth-child(4){animation-delay:0s}
+  #bgm-toggle:not(.playing) .eq i{height:3px;background:var(--faint);opacity:.85}  /* 关闭:压平成暗线 */
+  @keyframes eqbar{0%,100%{height:4px}50%{height:15px}}
+  @media (max-width:560px){ #bgm-toggle{right:14px;bottom:14px;width:40px;height:40px} }
+  @media (prefers-reduced-motion:reduce){ #bgm-toggle.playing .eq i{animation:none;height:11px} }
+
+  /* —— 会前阵容预演:卡牌堆叠轮播 —— */
+  #s-roster.active{display:flex;flex-direction:column;align-items:center;text-align:center}
+  .roster-lead{color:var(--brass);font-size:clamp(1.05rem,3.4vw,1.24rem);line-height:1.95;
+    max-width:24ch;margin:6px auto 2px;font-weight:400;
+    text-shadow:0 0 26px color-mix(in srgb,var(--brass) 32%,transparent)}
+  .roster-lede{color:var(--muted);font-size:.94rem;margin:2px 0 6px;max-width:30ch}
+  .deck{position:relative;width:min(76vw,300px);aspect-ratio:97/134;
+    margin:34px auto 4px;overflow:visible;touch-action:pan-y}
+  .deck-card{position:absolute;inset:0;border-radius:14px;overflow:hidden;cursor:grab;
+    box-shadow:0 26px 64px -24px rgba(0,0,0,.9);
+    transition:transform .52s cubic-bezier(.22,.7,.22,1),opacity .52s,filter .52s;
+    will-change:transform,opacity}
+  .deck-card img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;
+    -webkit-user-drag:none;user-select:none}
+  .deck-card::after{content:"";position:absolute;inset:0;border-radius:14px;pointer-events:none;
+    box-shadow:inset 0 0 0 1px rgba(231,224,208,.14)}
+  .deck-caption{min-height:1.4em;font-size:.96rem;letter-spacing:.04em;margin:14px 0 2px;
+    font-weight:500;transition:color .4s}
+  .deck-nav{display:flex;align-items:center;justify-content:center;gap:clamp(18px,5vw,30px);margin-top:6px}
+  .deck-arrow{width:50px;height:50px;border-radius:50%;background:var(--ground-2);
+    border:1px solid var(--line);color:var(--bone);font-size:1.25rem;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:transform .2s,border-color .3s,color .3s}
+  .deck-arrow:hover{border-color:var(--brass);color:var(--brass);transform:translateY(-1px)}
+  .deck-arrow:active{transform:scale(.94)}
+  .deck-dots{display:flex;gap:8px;align-items:center}
+  .deck-dots i{width:7px;height:7px;border-radius:50%;background:var(--faint);cursor:pointer;
+    transition:transform .3s,background .3s}
+  .deck-dots i.on{background:var(--brass);transform:scale(1.3)}
 </style>
 </head>
 <body>
+<audio id="bgm" loop preload="auto" src="/music/Trent-Reznor-_-Atticus-Ross-Just-Us-_From-_Soul__Score_.mp3"></audio>
+<button id="bgm-toggle" aria-label="背景音乐开关" aria-pressed="false" title="背景音乐 · 开 / 关"><span class="eq"><i></i><i></i><i></i><i></i></span></button>
 <main class="wrap">
 
+  <!-- 0 封面 -->
+  <section class="screen active" id="s-cover">
+    <div class="cover-frame">
+      <img src="/cover/90912f877bafa49984ab8e2d4c864a09.png" alt="Inner Crew · 六种人格，两大立场" />
+    </div>
+    <div class="cover-cta">
+      <button class="enter" id="cover-enter">开始探索你的内心世界</button>
+      <span class="sub">Inner Crew</span>
+    </div>
+  </section>
+
   <!-- 1 立题 -->
-  <section class="screen active" id="s-intro">
+  <section class="screen" id="s-intro">
     <p class="eyebrow">内心剧场</p>
     <h1>每个决定背后<br><span class="dim">都有一场没开成的会</span></h1>
     <p class="lede">把你正在纠结的真实决定写下来。</p>
@@ -347,6 +495,21 @@
     <div style="margin:24px 0"><label id="q-selfcore" style="color:var(--selfcore)">——</label>
       <textarea id="a-desire" rows="2" autocomplete="off" placeholder="（一两句就好）"></textarea></div>
     <button class="go" id="ask-next">让他们开会</button>
+  </section>
+
+  <!-- 4.5 阵容预演:开会前先认认六个声音 -->
+  <section class="screen" id="s-roster">
+    <p class="eyebrow">入场名单</p>
+    <p class="roster-lead">接下来，你内心的这六个声音<br>将坐到同一张桌子前——</p>
+    <p class="roster-lede">先一张张翻过去，认认他们的脸。</p>
+    <div class="deck" id="deck"></div>
+    <p class="deck-caption" id="deck-caption">——</p>
+    <div class="deck-nav">
+      <button class="deck-arrow" id="deck-prev" aria-label="上一位">‹</button>
+      <div class="deck-dots" id="deck-dots"></div>
+      <button class="deck-arrow" id="deck-next" aria-label="下一位">›</button>
+    </div>
+    <button class="go" id="roster-go">正式开始会议</button>
   </section>
 
   <!-- 5 会议 -->
@@ -426,6 +589,27 @@ async function streamSSE(url,body,onEvent){
 }
 
 /* —— 立题 —— */
+/* —— BGM:循环 + 淡入淡出,首次用户手势启动(绕过自动播放限制) —— */
+const bgm=$('bgm'), bgmBtn=$('bgm-toggle');
+let bgmWanted=true; bgm.volume=0;
+function fadeBgm(target,ms=1400,done){
+  const a=bgm.volume,t0=performance.now();
+  (function step(now){const k=Math.min(1,(now-t0)/ms);bgm.volume=a+(target-a)*k;
+    if(k<1)requestAnimationFrame(step); else if(done)done();})(t0);
+}
+// 声波律动跟随真实播放状态
+bgm.addEventListener('play',()=>{bgmBtn.classList.add('playing');bgmBtn.setAttribute('aria-pressed','true');});
+bgm.addEventListener('pause',()=>{bgmBtn.classList.remove('playing');bgmBtn.setAttribute('aria-pressed','false');});
+function startBgm(){ if(bgmWanted) bgm.play().then(()=>fadeBgm(.3)).catch(()=>{}); }
+bgmBtn.onclick=()=>{
+  bgmWanted=!bgmWanted;
+  if(bgmWanted) bgm.play().then(()=>fadeBgm(.3)).catch(()=>{});
+  else fadeBgm(0,500,()=>bgm.pause());   // 淡出后真正暂停→声波压平
+};
+window.addEventListener('pointerdown',startBgm,{once:true});  // 任何首次点击即启动
+
+$('cover-enter').onclick=()=>{ startBgm(); show('s-intro'); };
+
 $('start').onclick=async()=>{
   state.topic=$('topic').value.trim();
   NODES=await fetch('/api/nodes').then(r=>r.json());   // 预取节点,转场后进门即时
@@ -510,8 +694,65 @@ async function goAsk(){
 }
 $('ask-next').onclick=()=>{
   state.assets=$('a-assets').value.trim(); state.desire=$('a-desire').value.trim();
-  goMeeting();
+  goRoster();
 };
+
+/* —— 阵容预演:卡牌堆叠轮播 —— */
+// 卡面已自带名字 + 标语,这里只补一句口吻作情感锚点(对立轴相邻,暗示等会儿谁对谁)
+const ROSTER=['ambition','guardian','dreamer','logician','empath','selfcore'];
+let DECK=[], deckIdx=0, deckReady=false;
+function buildDeck(){
+  const stage=$('deck'); stage.innerHTML=''; DECK=[];
+  ROSTER.forEach((key,i)=>{
+    const el=document.createElement('div'); el.className='deck-card';
+    el.innerHTML=`<img src="/card/${key}.jpg" alt="${pmeta(key).n}" loading="eager">`;
+    el.onclick=()=>{ if(i!==deckIdx){ deckIdx=i; layoutDeck(); } };
+    stage.appendChild(el); DECK.push(el);
+  });
+  const dots=$('deck-dots'); dots.innerHTML='';
+  ROSTER.forEach((key,i)=>{
+    const d=document.createElement('i');
+    d.onclick=()=>{ deckIdx=i; layoutDeck(); };
+    dots.appendChild(d);
+  });
+  deckReady=true;
+}
+function layoutDeck(){
+  const n=DECK.length;
+  DECK.forEach((el,i)=>{
+    let rel=i-deckIdx;
+    if(rel> n/2) rel-=n;
+    if(rel<-n/2) rel+=n;
+    const a=Math.abs(rel);
+    const x=rel*38, scale=Math.max(1-a*0.13,.6);
+    el.style.transform=`translateX(${x}%) scale(${scale})`;
+    el.style.zIndex=30-a;
+    el.style.opacity = a===0?1 : a===1?.6 : a===2?.26 : 0;
+    el.style.filter = a===0?'none':`brightness(${0.74-a*0.08})`;
+    el.style.cursor = a===0?'default':'pointer';
+    el.style.pointerEvents = a>=3?'none':'auto';
+  });
+  const key=ROSTER[deckIdx], m=pmeta(key), cap=$('deck-caption');
+  cap.textContent=m.role; cap.style.color=`var(${m.v})`;
+  [...$('deck-dots').children].forEach((d,i)=>d.classList.toggle('on',i===deckIdx));
+}
+const deckStep=dir=>{ deckIdx=(deckIdx+dir+ROSTER.length)%ROSTER.length; layoutDeck(); };
+$('deck-prev').onclick=()=>deckStep(-1);
+$('deck-next').onclick=()=>deckStep(1);
+// 触摸/拖拽横滑
+(function(){
+  const stage=$('deck'); let x0=null;
+  stage.addEventListener('pointerdown',e=>{ x0=e.clientX; });
+  stage.addEventListener('pointerup',e=>{ if(x0===null)return; const dx=e.clientX-x0; x0=null;
+    if(Math.abs(dx)>40) deckStep(dx<0?1:-1); });
+  stage.addEventListener('pointercancel',()=>{ x0=null; });
+})();
+function goRoster(){
+  show('s-roster');
+  if(!deckReady) buildDeck();
+  deckIdx=0; layoutDeck();
+}
+$('roster-go').onclick=()=>goMeeting();
 
 /* —— 会议 —— */
 function addSpeech(ev,stream){
@@ -597,7 +838,7 @@ function arenaThinking(pid,on){                           // W 等待态:仅对�
 function makeFighter(pid){
   const m=pmeta(pid), el=document.createElement('div');
   el.className='fighter masked'; el.dataset.persona=pid; el.style.setProperty('--c',`var(${m.v})`);  // A 默认蒙面
-  const img=document.createElement('img'); img.src=`/sprites/${pid}.png`; img.alt=m.n;
+  const img=document.createElement('img'); img.src=`/abstract/${pid}.png`; img.alt=m.n;
   img.onerror=()=>{arenaOn=false; const a=$('arena'); if(a)a.classList.add('hidden');}; // 降级:任一图挂了退回纯气泡
   el.appendChild(img);
   const np=document.createElement('span'); np.className='nameplate'; el.appendChild(np);  // 名牌(揭面才显)
@@ -677,24 +918,53 @@ function focusStanceLabel(stance){
   if(stance==='third')return ' · 第三条路';
   return '';
 }
-async function focusSpeak(ev){      // 第二幕:把当前发言抽到舞台正下方居中高亮,停留后下沉进气泡区;期间气泡历史变灰
-  const m=pmeta(ev.persona), f=$('focus');
+function arenaCutinShow(ev,showStance){   // 发言切入幕:发言者放大占满画框 + 名牌 + 底部对话框(返回对话框文字节点)
+  if(!arenaOn)return null;
+  const a=$('arena'); if(!a)return null;
+  const m=pmeta(ev.persona);
+  let c=a.querySelector('.cutin');
+  if(!c){ c=document.createElement('div'); a.appendChild(c); }
+  const right = ev.stance==='b';                         // 支持A→靠左, 支持B→靠右(镜像), 第三条路→靠左
+  c.className='cutin'+(right?' side-right':'');
+  c.style.setProperty('--c',`var(${m.v})`);
+  c.innerHTML=
+    `<img class="cutin-char" src="/abstract/${ev.persona}.png" alt="">`+
+    (ev.query?`<span class="cutin-q">🔍 检索「${ev.query}」</span>`:'')+
+    `<span class="cutin-name">${ev.name||m.n}${showStance?focusStanceLabel(ev.stance):''}</span>`+
+    `<div class="cutin-box"><span class="cutin-text"></span></div>`;
+  void c.offsetWidth; c.classList.add('show');   // 重启入场动画(className 重置已去掉 show)
+  return c.querySelector('.cutin-text');
+}
+function arenaCutinHide(){
+  if(!arenaOn)return;
+  const c=$('arena')&&$('arena').querySelector('.cutin'); if(c)c.classList.remove('show');
+}
+async function focusSpeak(ev){      // 第二幕:每条发言在画框里出一幕"切入幕"(占满画框);无 sprite 时降级回舞台下方焦点位
+  const m=pmeta(ev.persona);
   $('speeches').classList.add('bw');
-  f.innerHTML=`<div class="focus-card" style="--c:var(${m.v})">`+
-    `<span class="focus-who">${ev.name||m.n}${focusStanceLabel(ev.stance)}</span>`+
-    (ev.query?`<span class="focus-q">🔍 检索「${ev.query}」</span>`:'')+
-    `<p class="focus-text"></p></div>`;
-  const card=f.querySelector('.focus-card'); requestAnimationFrame(()=>card.classList.add('show'));
-  arenaJoinCamp(ev.persona,ev.stance);                       // 小人跑向阵营
+  arenaJoinCamp(ev.persona,ev.stance);                       // 小人跑向阵营(切入幕收起后可见)
   state.transcript.push({persona:ev.persona,stance:ev.stance,text:ev.text});
   setTimeout(()=>arenaArgue(ev.persona,ev.stance),700);      // 据理力争
   if(ev.query) setTimeout(()=>arenaTurning(ev.persona),760); // 实锤
   updateBalance();
-  await typeOut(f.querySelector('.focus-text'), ev.text);    // 焦点位打字
-  await sleep(4500);                                         // 停留
-  card.classList.add('descend'); await sleep(380);           // 下沉
+  if(arenaOn){
+    const box=arenaCutinShow(ev,true);                       // 切入幕:占满画框
+    await typeOut(box, ev.text);                             // 对话框打字
+    await sleep(2800);                                       // 停留(可调:整场节奏的主要旋钮)
+    arenaCutinHide(); await sleep(320);                      // 收起
+  }else{                                                     // 降级:舞台下方焦点位
+    const f=$('focus');
+    f.innerHTML=`<div class="focus-card" style="--c:var(${m.v})">`+
+      `<span class="focus-who">${ev.name||m.n}${focusStanceLabel(ev.stance)}</span>`+
+      (ev.query?`<span class="focus-q">🔍 检索「${ev.query}」</span>`:'')+
+      `<p class="focus-text"></p></div>`;
+    const card=f.querySelector('.focus-card'); requestAnimationFrame(()=>card.classList.add('show'));
+    await typeOut(f.querySelector('.focus-text'), ev.text);
+    await sleep(4500); card.classList.add('descend'); await sleep(380);
+    f.innerHTML='';
+  }
   const body=addSpeech(ev,false); body.textContent=ev.text;  // 进气泡区存档(带队长色虚线半框)
-  f.innerHTML=''; $('speeches').classList.remove('bw');       // 取消灰度
+  $('speeches').classList.remove('bw');                      // 取消灰度
   await sleep(120);
 }
 function arenaVerdict(pick){                              // B 拍板定格:veil 压暗全场 + 选中侧聚光发光 + 半动态金句
@@ -765,17 +1035,23 @@ async function goMeeting(){
     duelStmts={};
     arenaLineup();              // 开场:六小人蒙面在舞台中央列队
     // 第一幕
-    let bodies={},duelSeq=[];
+    let bodies={},duelSeq=[],cutinBox=null;
     await streamSSE('/api/meeting/duel',{state},ev=>{
       if(ev.event==='start'){ // 串行:首位是 A(靠左)、次位是 B(靠右);stance 在 end 才到,这里按顺序先定方向
         const stance=duelSeq.length===0?'a':'b'; duelSeq.push(ev.persona);
         arenaSendCaptain(ev.persona,stance);   // 队长走向各自一侧、就位揭面
+        cutinBox=arenaCutinShow({...ev,stance},false);   // 切入幕登场(对峙不显立场标签,发言者本身就是那一极)
         bodies[ev.persona]=addSpeech({...ev,stance},true);}
-      else if(ev.delta&&bodies[ev.persona]){bodies[ev.persona].textContent+=ev.delta; arenaSpeak(ev.persona,true);}
+      else if(ev.delta&&bodies[ev.persona]){
+        if(cutinBox)cutinBox.textContent+=ev.delta;        // 流式进切入幕对话框
+        else bodies[ev.persona].textContent+=ev.delta;     // 降级:无切入幕时流进气泡
+        arenaSpeak(ev.persona,true);}
       else if(ev.event==='end'){duelStmts[ev.persona]=ev.text; arenaSpeak(ev.persona,false);
+        if(bodies[ev.persona])bodies[ev.persona].textContent=ev.text;   // 气泡存档最终全文
         state.transcript.push({persona:ev.persona,stance:ev.stance,text:ev.text});}
       else if(ev.done){duelists=ev.duelists;}
     });
+    arenaCutinHide(); await sleep(320);   // 收起切入幕,露出双阵营列队
     setMomentumColors();
     arenaTension();   // D 开场钩子:两股力量都是你自己(非格斗,趁 debate 首次 LLM 等待时展示)
     // 第二幕:未发言的配角先进"思考态",填满 debate 的 LLM 死等
@@ -797,10 +1073,14 @@ async function replayMeeting(){                              // R 预录回放:�
   if(!R||!R.duel){ $('meeting-err').textContent='回放数据缺失,请改走真实路径。'; return; }
   arenaLineup(); duelists=R.duelists; state.transcript=[];
   await sleep(800);
-  for(const d of R.duel){                                    // 第一幕:两队长就位揭面 + 打字陈词
+  for(const d of R.duel){                                    // 第一幕:两队长就位揭面 + 切入幕打字陈词
     arenaSendCaptain(d.persona,d.stance);
     const body=addSpeech({persona:d.persona,name:pmeta(d.persona).n,stance:d.stance},true);
-    arenaSpeak(d.persona,true); await typeOut(body,d.text); arenaSpeak(d.persona,false);
+    arenaSpeak(d.persona,true);
+    const box=arenaCutinShow({persona:d.persona,name:pmeta(d.persona).n,stance:d.stance},false);
+    await typeOut(box||body, d.text);                        // 切入幕打字(降级打进气泡)
+    if(box)body.textContent=d.text;                          // 气泡存档全文
+    arenaSpeak(d.persona,false); arenaCutinHide();
     state.transcript.push({persona:d.persona,stance:d.stance,text:d.text});
     await sleep(500);
   }

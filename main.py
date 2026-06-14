@@ -384,5 +384,11 @@ async def interject(req: InterjectRequest):
     )
 
 
+# BGM 等音频资源（须在 "/" 兜底挂载之前注册，否则被 catch-all 吃掉）
+app.mount("/music", StaticFiles(directory="music"), name="music")
+# 人格卡牌插画（会前阵容预演用，同样须在兜底挂载之前注册）
+app.mount("/card", StaticFiles(directory="card"), name="card")
+# 封面海报（项目首页用，同样须在兜底挂载之前注册）
+app.mount("/cover", StaticFiles(directory="cover"), name="cover")
 # 静态前端托管在最后挂载（兜底路由），避免吃掉上面的 /api 路由
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
