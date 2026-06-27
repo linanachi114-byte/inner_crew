@@ -1,0 +1,11 @@
+# 构建上下文瘦身 + 安全：绝不把 .env（含 StepFun/Tavily key）烤进镜像
+.env
+plan/.env
+.venv/
+.git/
+__pycache__/
+**/__pycache__/
+*.pyc
+.DS_Store
+.claude/
+scratchpad/

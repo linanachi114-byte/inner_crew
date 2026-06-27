@@ -1,0 +1,19 @@
+# Render 蓝图：免费档 Docker Web 服务。
+# 在 Render 控制台「New + → Blueprint」连接本仓库，它会自动读这个文件建服务，之后 push 即自动部署。
+# 注意：免费档闲置 15 分钟休眠，访客首次访问冷启动约 30–50s（简历展示足够）。
+services:
+  - type: web
+    name: inner-crew
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: STEPFUN_API_KEY     # 必填：在 Render 控制台手填，切勿提交进仓库
+        sync: false
+      - key: STEPFUN_MODEL       # 公开 Demo 建议 step-2-16k（非推理 ~1s，比 flash 更快更稳）
+        value: step-2-16k
+      - key: STEPFUN_REASONING
+        value: low
+      - key: SEARCH_ENABLED      # 关掉 Tavily 检索，保护额度；要开就改 1 并补填 TAVILY_API_KEY
+        value: "0"
