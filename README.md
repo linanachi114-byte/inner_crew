@@ -4,7 +4,7 @@
 > **Inner Crew 帮你把这场"没开成的会"真正开起来。**
 
 <p align="center">
-  <img src="docs/screenshots/cover.png" width="62%" alt="Inner Crew · 六种人格，两方立场">
+  <img src="docs/screenshots/demo.gif" width="72%" alt="Inner Crew 决策会议 · 像素小人对峙现场">
 </p>
 
 🎥 **完整演示**（3 分钟 · 带声音）— 上面是高潮预览，下面播放器是完整版：
@@ -39,7 +39,7 @@ https://github.com/user-attachments/assets/f9f6a0c3-7f7f-4271-8a90-c1a1d61f77bb
 
 **④ 决策会议·三幕** — 六个像素小人坐到同一张桌前。第一幕**对峙**：最针锋相对的两个你先把话挑明；第二幕**选边**：其余声音被迫站队，没有"两边都有道理"；第三幕**裁决**：吵到最后，谁拍板？**你。**
 
-<p align="center"><img src="docs/screenshots/demo.gif" width="72%" alt="决策会议：像素小人对峙现场"></p>
+<p align="center"><img src="docs/screenshots/arena.png" width="58%" alt="决策会议·第二幕选边：你能给每条发言点「有道理 / 不认同」"></p>
 
 **⑤ 决策建议书** — 你拍板后，"书记"把这场会落成一份建议书：方向总结、可执行步骤、各方立场、风险提示，**还留着你没选的那一侧的声音**——因为它们没有消失。
 
@@ -50,6 +50,8 @@ https://github.com/user-attachments/assets/f9f6a0c3-7f7f-4271-8a90-c1a1d61f77bb
 ## 你会遇到这六个人
 
 它们两两对立，所以这场会永远有真正的冲突，不会和稀泥：
+
+<p align="center"><img src="docs/screenshots/cover.png" width="48%" alt="六种人格，两方立场"></p>
 
 | 对立轴 | 一方 | 另一方 |
 |---|---|---|
