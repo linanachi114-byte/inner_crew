@@ -3,10 +3,10 @@
 > 重要决策时，帮你把脑内"没开成的那场会"真正开起来。
 > An LLM-powered "inner council": six opinionated AI personas debate your real dilemma and hand you an actionable decision brief.
 
-🔗 **在线 Demo**：_部署后把链接填到这里_ &nbsp;·&nbsp; 🎥 **演示录屏**：_把 GIF / 视频链接填到这里_
+🎥 **完整演示**（3 分钟 · 带旁白）：[▶ 看录屏](#demo-video) <!-- 上传到 GitHub Release 后，把 #demo-video 换成视频链接 -->
 
 <p align="center">
-  <img src="docs/screenshots/phase5-arena-meeting.png" width="80%" alt="决策会议·像素小人对战场">
+  <img src="docs/screenshots/demo.gif" width="80%" alt="Inner Crew 决策会议 · 第一幕对峙">
 </p>
 
 ---
