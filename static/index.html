@@ -326,16 +326,17 @@
     background:color-mix(in srgb,var(--logician) 42%,rgba(0,0,0,.55));border:1px solid color-mix(in srgb,var(--logician) 60%,transparent);
     border-radius:5px;padding:2px 9px}
   .cutin.side-right .cutin-q{right:auto;left:3.5%}
-  .cutin-name{position:absolute;left:0;bottom:56px;z-index:3;color:#fff;font-weight:700;letter-spacing:.1em;font-size:.94rem;
+  .cutin-name{position:absolute;left:0;bottom:118px;z-index:4;color:#fff;font-weight:700;letter-spacing:.1em;font-size:.94rem;
     background:linear-gradient(180deg,color-mix(in srgb,var(--c) 96%,#fff),color-mix(in srgb,var(--c) 90%,#000) 22%,color-mix(in srgb,var(--c) 60%,#000));
     padding:6px 26px 6px 16px;clip-path:polygon(0 0,100% 0,86% 100%,0 100%);box-shadow:0 2px 12px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.35);
     transform:translateX(-100%);transition:transform .34s cubic-bezier(.2,.8,.2,1) .12s}
   .cutin.side-right .cutin-name{left:auto;right:0;padding:6px 16px 6px 26px;clip-path:polygon(14% 0,100% 0,100% 100%,0 100%);transform:translateX(100%)}
   .cutin.show .cutin-name{transform:none}
-  .cutin-box{position:absolute;left:0;right:0;bottom:0;z-index:2;min-height:54px;padding:13px 22px 15px;
+  .cutin-box{position:absolute;left:0;right:0;bottom:0;z-index:2;min-height:118px;padding:42px 22px 16px;
     background:linear-gradient(180deg,rgba(6,7,16,.42),rgba(6,7,16,.92));
     border-top:2px solid color-mix(in srgb,var(--c) 78%,transparent);
-    color:#f4efe2;font-size:1.06rem;line-height:1.5;text-shadow:0 1px 7px rgba(0,0,0,.9)}
+    color:#f4efe2;font-size:1.06rem;line-height:1.55;text-shadow:0 1px 7px rgba(0,0,0,.9)}
+  .cutin-text{display:block;max-height:70px;overflow:auto;padding-right:4px}
   /* 11 无障碍 + 移动端 */
   @media (prefers-reduced-motion:reduce){
     .fighter,.fighter img,.momentum .fillm,.stars,.stars::after{transition:opacity .3s ease!important;animation:none!important}
@@ -352,8 +353,8 @@
     #arena{height:332px}
     .fighter img{height:82px}
     .fighter::after{width:36px}
-    .cutin-box{font-size:.96rem;padding:10px 16px 12px}
-    .cutin-name{bottom:50px;font-size:.84rem}
+    .cutin-box{font-size:.96rem;min-height:116px;padding:39px 16px 12px}
+    .cutin-name{bottom:112px;font-size:.84rem}
     .cutin-char{height:82%;bottom:14%}
   }
   #director{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:60;display:flex;gap:12px;align-items:center;
@@ -832,7 +833,16 @@ const SCENERY_SVG=`<svg class="scenery" viewBox="0 0 600 200" preserveAspectRati
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 async function typeOut(el,text){                          // 逐字打字(回放用)
   if(!el){return;} el.textContent='';
-  for(let i=0;i<text.length;i++){ el.textContent+=text[i]; if(i%2===0) await sleep(15); }
+  for(let i=0;i<text.length;i++){
+    el.textContent+=text[i];
+    const ch=text[i];
+    if(/[。！？；]/.test(ch)) await sleep(210);
+    else if(/[，、：]/.test(ch)) await sleep(110);
+    else await sleep(42);
+  }
+}
+function readingPause(text){
+  return Math.max(2600, Math.min(7200, (text||'').length * 32));
 }
 function arenaReveal(pid){                                // A 揭面:去蒙面、亮人格色、出名牌、扫光
   if(!arenaOn)return;
@@ -963,7 +973,7 @@ async function focusSpeak(ev){      // 第二幕:每条发言在画框里出一�
   if(arenaOn){
     const box=arenaCutinShow(ev,true);                       // 切入幕:占满画框
     await typeOut(box, ev.text);                             // 对话框打字
-    await sleep(2800);                                       // 停留(可调:整场节奏的主要旋钮)
+    await sleep(readingPause(ev.text));                      // 停留(随文本长度自适应,保证能看清)
     arenaCutinHide(); await sleep(320);                      // 收起
   }else{                                                     // 降级:舞台下方焦点位
     const f=$('focus');
@@ -973,7 +983,7 @@ async function focusSpeak(ev){      // 第二幕:每条发言在画框里出一�
       `<p class="focus-text"></p></div>`;
     const card=f.querySelector('.focus-card'); requestAnimationFrame(()=>card.classList.add('show'));
     await typeOut(f.querySelector('.focus-text'), ev.text);
-    await sleep(4500); card.classList.add('descend'); await sleep(380);
+    await sleep(readingPause(ev.text)+1200); card.classList.add('descend'); await sleep(380);
     f.innerHTML='';
   }
   const body=addSpeech(ev,false); body.textContent=ev.text;  // 进气泡区存档(带队长色虚线半框)
