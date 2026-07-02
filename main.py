@@ -24,6 +24,21 @@ async def health():
     return {"status": "ok"}
 
 
+@app.get("/api/topic/random")
+async def random_topic():
+    return {"topic": constants.random_topic()}
+
+
+class TopicCheckRequest(BaseModel):
+    topic: str = ""
+
+
+@app.post("/api/topic/check")
+async def topic_check(req: TopicCheckRequest):
+    ok, reason = constants.validate_topic(req.topic)
+    return {"ok": ok, "reason": reason}
+
+
 @app.get("/api/nodes")
 async def nodes(topic: str = ""):
     """给前端的本轮试炼：有序题目 + 场景 + 选项文案 + 插话名单。不含 delta。"""

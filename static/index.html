@@ -80,7 +80,12 @@
     line-height:1.5;margin-bottom:18px;text-shadow:0 1px 18px rgba(0,0,0,.4)}
   #s-intro label::after{content:"";display:block;width:40px;height:2px;margin:14px auto 0;
     background:linear-gradient(90deg,transparent,var(--brass),transparent);opacity:.8}
+  #s-intro .topic-row{display:grid;grid-template-columns:minmax(0,560px) auto;gap:10px;align-items:stretch;width:min(680px,100%)}
   #s-intro textarea{max-width:560px;font-size:1.18rem}
+  .random-topic{margin:0;border:1px solid var(--line);background:var(--ground-2);color:var(--brass);
+    border-radius:3px;padding:0 16px;font-size:.92rem;white-space:nowrap}
+  .random-topic:hover{border-color:var(--brass);transform:translateY(-1px)}
+  #topic-err{max-width:680px;text-align:left}
   #s-intro .go{font-size:1.05rem;padding:15px 32px}
   .prelude-line{color:var(--brass);font-size:1.2rem;line-height:2.05;max-width:32ch;margin:0 0 42px;animation:fade 1s both}
   .bridge{color:var(--muted);font-style:italic;font-size:1rem;margin:4px 0 2px}
@@ -181,8 +186,8 @@
   .speech .dislike.on{border-color:var(--ambition);color:var(--ambition)}
 
   /* —— 2.0 像素对战舞台（上方 arena，下方沿用气泡 #speeches） —— */
-  /* 画框高度翻倍:200→400px(宽度不变,仍随 .wrap 列宽) */
-  #arena{position:relative;height:400px;margin:6px 0 14px;border-radius:5px;overflow:hidden;border:1px solid var(--line);
+  /* 画框加高，给切入幕台词留足空间 */
+  #arena{position:relative;height:520px;margin:6px 0 14px;border-radius:5px;overflow:hidden;border:1px solid var(--line);
     background:radial-gradient(60% 50% at 50% 6%,color-mix(in srgb,#9fb4ff 11%,transparent),transparent 62%),
       linear-gradient(180deg,#0e1430 0%,#0a0f26 58%,#070a18 100%)}
   #arena.hidden{display:none}
@@ -326,17 +331,17 @@
     background:color-mix(in srgb,var(--logician) 42%,rgba(0,0,0,.55));border:1px solid color-mix(in srgb,var(--logician) 60%,transparent);
     border-radius:5px;padding:2px 9px}
   .cutin.side-right .cutin-q{right:auto;left:3.5%}
-  .cutin-name{position:absolute;left:0;bottom:118px;z-index:4;color:#fff;font-weight:700;letter-spacing:.1em;font-size:.94rem;
+  .cutin-name{position:absolute;left:0;bottom:220px;z-index:4;color:#fff;font-weight:700;letter-spacing:.1em;font-size:.94rem;
     background:linear-gradient(180deg,color-mix(in srgb,var(--c) 96%,#fff),color-mix(in srgb,var(--c) 90%,#000) 22%,color-mix(in srgb,var(--c) 60%,#000));
     padding:6px 26px 6px 16px;clip-path:polygon(0 0,100% 0,86% 100%,0 100%);box-shadow:0 2px 12px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.35);
     transform:translateX(-100%);transition:transform .34s cubic-bezier(.2,.8,.2,1) .12s}
   .cutin.side-right .cutin-name{left:auto;right:0;padding:6px 16px 6px 26px;clip-path:polygon(14% 0,100% 0,100% 100%,0 100%);transform:translateX(100%)}
   .cutin.show .cutin-name{transform:none}
-  .cutin-box{position:absolute;left:0;right:0;bottom:0;z-index:2;min-height:118px;padding:42px 22px 16px;
+  .cutin-box{position:absolute;left:0;right:0;bottom:0;z-index:2;min-height:220px;padding:20px 24px 18px;
     background:linear-gradient(180deg,rgba(6,7,16,.42),rgba(6,7,16,.92));
     border-top:2px solid color-mix(in srgb,var(--c) 78%,transparent);
     color:#f4efe2;font-size:1.06rem;line-height:1.55;text-shadow:0 1px 7px rgba(0,0,0,.9)}
-  .cutin-text{display:block;max-height:70px;overflow:auto;padding-right:4px}
+  .cutin-text{display:block;padding-right:4px}
   /* 11 无障碍 + 移动端 */
   @media (prefers-reduced-motion:reduce){
     .fighter,.fighter img,.momentum .fillm,.stars,.stars::after{transition:opacity .3s ease!important;animation:none!important}
@@ -350,11 +355,11 @@
     .cutin .cutin-name{transition:none!important;transform:none!important}
   }
   @media (max-width:560px){
-    #arena{height:332px}
+    #arena{height:430px}
     .fighter img{height:82px}
     .fighter::after{width:36px}
-    .cutin-box{font-size:.96rem;min-height:116px;padding:39px 16px 12px}
-    .cutin-name{bottom:112px;font-size:.84rem}
+    .cutin-box{font-size:.96rem;min-height:185px;padding:16px 16px 12px}
+    .cutin-name{bottom:185px;font-size:.84rem}
     .cutin-char{height:82%;bottom:14%}
   }
   #director{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:60;display:flex;gap:12px;align-items:center;
@@ -390,7 +395,12 @@
     margin-right:2px;animation:blink 1.2s infinite both}
   .thinking span:nth-child(2){animation-delay:.2s}.thinking span:nth-child(3){animation-delay:.4s}
   @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
-  @media (max-width:560px){ .verdict-btns,.continue-btns{flex-direction:column} .vbtn,.continue-btns .choice{min-width:0} }
+  @media (max-width:560px){
+    #s-intro .topic-row{grid-template-columns:1fr}
+    .random-topic{padding:11px 16px}
+    .verdict-btns,.continue-btns{flex-direction:column}
+    .vbtn,.continue-btns .choice{min-width:0}
+  }
   /* —— BGM 开关:金色声波,播放时律动,关闭时压平变暗 —— */
   #bgm-toggle{position:fixed;right:20px;bottom:20px;z-index:100;width:44px;height:44px;border-radius:50%;
     border:1px solid color-mix(in srgb,var(--brass) 32%,var(--line));cursor:pointer;
@@ -464,7 +474,11 @@
     <h1>每个决定背后<br><span class="dim">都有一场没开成的会</span></h1>
     <p class="lede">把你正在纠结的真实决定写下来。</p>
     <label for="topic">此刻，你正在为什么做决定？</label>
-    <textarea id="topic" rows="2" autocomplete="off" placeholder="例如：要不要离开稳定的工作，去一家创业公司"></textarea>
+    <div class="topic-row">
+      <textarea id="topic" rows="2" autocomplete="off" placeholder="例如：要不要离开稳定的工作，去一家创业公司"></textarea>
+      <button class="random-topic" id="topic-random" type="button" title="换一个随机议题">随机议题</button>
+    </div>
+    <p class="err" id="topic-err"></p>
     <button class="go" id="start">踏入试炼</button>
   </section>
 
@@ -621,8 +635,30 @@ window.addEventListener('pointerdown',startBgm,{once:true});  // 任何首次点
 
 $('cover-enter').onclick=()=>{ startBgm(); show('s-intro'); };
 
+$('topic').addEventListener('input',()=>{$('topic-err').textContent='';});
+$('topic-random').onclick=async()=>{
+  $('topic-random').disabled=true;
+  try{
+    const r=await fetch('/api/topic/random').then(x=>x.json());
+    $('topic').value=r.topic||'';
+    $('topic-err').textContent='';
+  }finally{
+    $('topic-random').disabled=false;
+  }
+};
 $('start').onclick=async()=>{
   state.topic=$('topic').value.trim();
+  $('topic-err').textContent='';
+  $('start').disabled=true;
+  try{
+    const checked=await postJSON('/api/topic/check',{topic:state.topic});
+    if(!checked.ok){
+      $('topic-err').textContent=checked.reason||'这个议题还不太像一个需要拍板的选择。';
+      return;
+    }
+  }finally{
+    $('start').disabled=false;
+  }
   const plan=await fetch('/api/nodes?topic='+encodeURIComponent(state.topic)).then(r=>r.json());
   ORDER=plan.order||Object.keys(plan.nodes||{});
   NODES=plan.nodes||plan;   // 预取本轮题目,转场后进门即时

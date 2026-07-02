@@ -8,6 +8,49 @@ PERSONAS = ["ambition", "guardian", "empath", "selfcore", "logician", "dreamer"]
 
 OPPOSITION = [("ambition", "guardian"), ("empath", "selfcore"), ("logician", "dreamer")]
 
+TOPIC_SUGGESTIONS = [
+    "要不要裸辞，去做自己一直想做的事",
+    "该不该离开稳定工作，加入一家早期创业公司",
+    "要不要读研，还是先进入职场积累经验",
+    "该不该接受外地 offer，离开现在熟悉的生活",
+    "要不要结束这段关系，还是再认真修复一次",
+    "该不该把存款投入一个高风险但很想做的项目",
+    "要不要换到收入更高但压力更大的岗位",
+    "该不该为了家人的期待留在本地，还是去远方发展",
+    "要不要把副业变成主业，还是继续稳住现在的工作",
+    "该不该和朋友合伙创业，还是保持关系简单",
+    "要不要为了喜欢的城市降低收入预期",
+    "该不该继续坚持这个方向，还是及时止损换赛道",
+]
+
+
+def random_topic() -> str:
+    return random.SystemRandom().choice(TOPIC_SUGGESTIONS)
+
+
+def validate_topic(topic: str) -> tuple[bool, str]:
+    """判断用户议题是否适合开会：最好是 A/B 类型的真实决策。"""
+    t = (topic or "").strip()
+    if len(t) < 6:
+        return False, "这个议题太短了。试着写成“要不要…… / 该不该…… / A 还是 B”。"
+    if len(t) > 120:
+        return False, "这个议题有点太长了。先压成一句核心选择：你到底在两个什么方向之间摇摆？"
+
+    decision_markers = [
+        "要不要", "该不该", "是否", "能不能", "应不应该", "值不值得",
+        "还是", "或者", "不如", "继续", "放弃", "接受", "拒绝",
+        "离开", "留下", "辞", "换", "分手", "结婚", "读研", "创业", "offer",
+    ]
+    question_markers = ["怎么", "如何", "为什么", "是什么", "有哪些", "多少", "哪里", "谁"]
+
+    has_decision = any(x in t for x in decision_markers)
+    looks_like_info_question = any(x in t for x in question_markers) and not has_decision
+    if looks_like_info_question:
+        return False, "这更像是在问信息，不像一个需要你拍板的选择。试着改成“我要不要……”。"
+    if not has_decision:
+        return False, "这还不像 A/B 型选择。试着写成“要不要做 X，还是继续 Y”。"
+    return True, ""
+
 TRIAL_STAGE_SEQUENCE = ["open", "relation", "vision", "pressure", "close"]
 
 
