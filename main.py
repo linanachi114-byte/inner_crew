@@ -83,15 +83,20 @@ async def ask(req: AskRequest):
     topic = req.topic or req.state.get("topic") or "（未填议题）"
     try:
         user = f"议题：{topic}\n他在三道门的选择：{scoring.choice_summary(req.state)}"
+        kwargs = {
+            "model": models.JSON_MODEL,  # 非推理模型出干净 JSON（flash 的 json_object 出乱码）
+            "messages": [{"role": "system", "content": ASK_SYS},
+                         {"role": "user", "content": user}],
+            "max_tokens": max(400, models.reasoning_token_floor(models.JSON_MODEL) + 400)
+            if models.needs_reasoning_budget(models.JSON_MODEL) else 400,
+            "response_format": {"type": "json_object"},
+        }
+        extra = models.reasoning_extra(models.JSON_MODEL)
+        if extra:
+            kwargs["extra_body"] = extra
         resp = await asyncio.wait_for(
-            models.stepfun_client.chat.completions.create(
-                model=models.JSON_MODEL,  # 非推理模型出干净 JSON（flash 的 json_object 出乱码）
-                messages=[{"role": "system", "content": ASK_SYS},
-                          {"role": "user", "content": user}],
-                max_tokens=400,
-                response_format={"type": "json_object"},
-            ),
-            timeout=8.0,  # step-2-16k JSON ~3-5s
+            models.stepfun_client.chat.completions.create(**kwargs),
+            timeout=18.0,
         )
         d = json.loads(resp.choices[0].message.content)
         if d.get("logician_q") and d.get("selfcore_q"):
@@ -308,12 +313,19 @@ def _build_verdict_user(state: dict, duelists: list, verdict: str, note: str) ->
 async def _run_verdict(user: str, tries: int = 2):
     for _ in range(tries):
         try:
+            kwargs = {
+                "model": models.JSON_MODEL,  # 非推理模型出干净 JSON（flash 的 json_object 出乱码）
+                "messages": [{"role": "system", "content": VERDICT_SYS},
+                             {"role": "user", "content": user}],
+                "max_tokens": max(1200, models.reasoning_token_floor(models.JSON_MODEL) + 1200)
+                if models.needs_reasoning_budget(models.JSON_MODEL) else 1200,
+                "response_format": {"type": "json_object"},
+            }
+            extra = models.reasoning_extra(models.JSON_MODEL)
+            if extra:
+                kwargs["extra_body"] = extra
             resp = await models.stepfun_client.chat.completions.create(
-                model=models.JSON_MODEL,  # 非推理模型出干净 JSON（flash 的 json_object 出乱码）
-                messages=[{"role": "system", "content": VERDICT_SYS},
-                          {"role": "user", "content": user}],
-                max_tokens=1200,
-                response_format={"type": "json_object"},
+                **kwargs,
             )
             return json.loads(resp.choices[0].message.content)
         except Exception as e:

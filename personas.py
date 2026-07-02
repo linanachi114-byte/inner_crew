@@ -6,10 +6,12 @@
 
 import asyncio
 
-from agents import Agent, ModelSettings, RunConfig, Runner
+from agents import Agent, ModelSettings, RunConfig, Runner, set_tracing_disabled
 
 import constants
 from models import DEFAULT_MODEL, make_model
+
+set_tracing_disabled(True)
 
 # 人格 id -> 中文名（Agent.name 用）
 PERSONA_NAMES: dict[str, str] = {
@@ -95,11 +97,11 @@ INTERJECT_SUFFIX = (
 async def interject(pid: str, scene: str, timeout: float | None = None) -> tuple[str, str]:
     """插话：给某人格看场景，逼出一句 ≤30 字的强倾向直觉。run_persona 的固定姿势。
 
-    timeout 默认随模型自适应：flash 推理慢，放宽到 12s；step-2-16k 仍 5s。
+    timeout 默认随模型自适应：StepFun flash 推理慢，放宽到 12s；普通模型仍 5s。
     """
     import models
     if timeout is None:
-        timeout = 12.0 if "flash" in models.DEFAULT_MODEL else 5.0
+        timeout = 12.0 if models.uses_stepfun_reasoning() else 5.0
     return await run_persona(
         pid, user=f"场景：{scene}", suffix=INTERJECT_SUFFIX,
         max_tokens=80, timeout=timeout,
@@ -133,10 +135,12 @@ async def run_persona(
 
     agent = AGENTS[pid]
     prompt = f"{user}\n\n{suffix}" if suffix else user
-    is_flash = "flash" in models.DEFAULT_MODEL
-    # flash 先推理、易吃光预算返空：给足大 max_tokens（推理跑完后才有空间写正文）+ 空内容再加大重试。
-    attempts = [(max(max_tokens, 2500), models.reasoning_extra()), (4000, models.reasoning_extra())] \
-        if is_flash else [(max_tokens, None)]
+    needs_reasoning_budget = models.needs_reasoning_budget()
+    # 推理/flash 类模型会把一部分预算花在 reasoning 上：给足 max_tokens，避免正文返空。
+    floor = models.reasoning_token_floor() if needs_reasoning_budget else max_tokens
+    extra = models.reasoning_extra(models.DEFAULT_MODEL)
+    attempts = [(max(max_tokens, floor), extra), (max(max_tokens, floor * 2), extra)] \
+        if needs_reasoning_budget else [(max_tokens, extra)]
     text = ""
     for mt, extra in attempts:
         ms = ModelSettings(max_tokens=mt, extra_body=extra) if extra else ModelSettings(max_tokens=mt)
@@ -155,17 +159,21 @@ async def stream_persona(pid: str, user: str, max_tokens: int = 300, model: str 
     import models
     from models import stepfun_client, DEFAULT_MODEL
 
-    mt = max(max_tokens, 2500) if "flash" in (model or DEFAULT_MODEL) else max_tokens
-    stream = await stepfun_client.chat.completions.create(
-        model=model or DEFAULT_MODEL,
-        messages=[
+    mt = max(max_tokens, models.reasoning_token_floor(model or DEFAULT_MODEL)) \
+        if models.needs_reasoning_budget(model or DEFAULT_MODEL) else max_tokens
+    kwargs = {
+        "model": model or DEFAULT_MODEL,
+        "messages": [
             {"role": "system", "content": PERSONA_PROMPTS[pid]},
             {"role": "user", "content": user},
         ],
-        max_tokens=mt,
-        stream=True,
-        extra_body=models.reasoning_extra(),
-    )
+        "max_tokens": mt,
+        "stream": True,
+    }
+    extra = models.reasoning_extra(model or DEFAULT_MODEL)
+    if extra:
+        kwargs["extra_body"] = extra
+    stream = await stepfun_client.chat.completions.create(**kwargs)
     async for chunk in stream:
         if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
             yield chunk.choices[0].delta.content
