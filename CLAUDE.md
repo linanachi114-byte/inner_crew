@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 黑客松项目 **Inner Crew v2**（Track 02，比赛日 6/14）。总计划在 `docs/inner-crew-v2-详细执行计划.md`，它是唯一的事实来源（人格设定、prompt 模板、矩阵、卡片、三幕结构、API 契约、砍单优先级全在里面）；设计理念与理论背书见 `docs/DESIGN.md`，计划外的实测迭代记录见 `CHANGELOG.md`。
 
 一句话定位：重要决策时帮用户把脑内"没开成的会"开起来。
-主线：**立题 → 三步地牢（测人格）→ 想法卡片结算 → 会前自陈问询 → 决策会议三幕 → 决策建议书**。
+主线：**立题 → 随机组卷试炼（测人格）→ 想法卡片结算 → 会前自陈问询 → 决策会议多轮追问 → 决策建议书**。
 
 ## 技术栈与运行
 
@@ -39,7 +39,7 @@ StepFun 注意：① `role: system` 已实测生效（Agents SDK 的 `instructio
 ```
 main.py          # FastAPI app、路由、SSE 编排
 personas.py      # 6 个 Agent 定义 + PERSONA_PROMPTS + web_search 工具
-constants.py     # NODES（三节点矩阵）、CARDS、OPPOSITION 等纯数据
+constants.py     # NODES（试炼题库）、CARDS、OPPOSITION 等纯数据
 scoring.py       # 算分/结算/排序等纯函数（无 LLM、可单测）
 models.py        # 模型配置中枢（DEFAULT/JSON/TOOL/VERDICT 模型、reasoning_extra）
 search.py        # Tavily 检索（计算师工具用，降级不抛）

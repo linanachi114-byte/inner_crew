@@ -77,7 +77,7 @@ uv run uvicorn main:app --reload
 
 ### 一句话
 
-重要决策时帮用户把脑内"没开成的会"开起来。主线：立题 → 三步地牢(测人格) → 想法卡片结算 → 会前自陈问询 → 决策会议三幕 → 决策建议书。
+重要决策时帮用户把脑内"没开成的会"开起来。主线：立题 → 随机组卷试炼(测人格) → 想法卡片结算 → 会前自陈问询 → 决策会议多轮追问 → 决策建议书。
 
 ### 架构
 
@@ -88,7 +88,7 @@ uv run uvicorn main:app --reload
 FastAPI(main.py)  ── SSE 编排 / 路由
         ├── personas.py   6 个 Agent + 检索工具
         ├── scoring.py    纯函数：算分 / 结算 / 排序(无 LLM、可单测)
-        ├── constants.py  三节点矩阵 / 卡片 / 对立轴(纯数据)
+        ├── constants.py  试炼题库 / 卡片 / 对立轴(纯数据)
         ├── models.py     模型配置中枢
         └── search.py     Tavily 检索(计算师用，降级不抛)
         ▼

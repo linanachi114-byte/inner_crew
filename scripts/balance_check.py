@@ -1,67 +1,74 @@
-"""阶段2步骤1：三节点矩阵配平校验。
+"""试炼题库健康检查。
 
-① 覆盖性：每人格在全矩阵的总 delta（理论上限），目标 6-9。
-② 多样性：枚举 27 条选择路径，统计最高分人格分布——无单一人格占 20+ 条、无人格 0 胜。
+① 阶段覆盖：open/relation/vision/pressure/close 每段至少 2 题。
+② 抽样组卷：随机抽 200 套 5 题，统计每人格 delta 覆盖与最高分分布。
 """
 import itertools
 
 import constants as C
 
 
-def coverage():
-    tot = {p: 0 for p in C.PERSONAS}
+def stage_counts():
+    out = {stage: 0 for stage in C.TRIAL_STAGE_SEQUENCE}
     for node in C.NODES.values():
-        for ch in node["choices"].values():
-            for p, v in ch["delta"].items():
-                tot[p] += v
-    return tot
+        stage = node.get("stage")
+        if stage in out:
+            out[stage] += 1
+    return out
 
 
-def diversity():
-    nodes = list(C.NODES.values())
-    win = {p: 0 for p in C.PERSONAS}
+def score_combo(nodes, combo):
+    scores = {p: 0 for p in C.PERSONAS}
+    for node, choice_id in zip(nodes, combo):
+        ch = node["choices"][choice_id]
+        for p, v in ch["delta"].items():
+            scores[p] += v
+    return scores
+
+
+def sampled_diversity(samples=200):
+    coverage = {p: 0 for p in C.PERSONAS}
+    wins = {p: 0 for p in C.PERSONAS}
     ties = 0
-    for combo in itertools.product(*[list(n["choices"].values()) for n in nodes]):
-        scores = {p: 0 for p in C.PERSONAS}
-        for ch in combo:
-            for p, v in ch["delta"].items():
-                scores[p] += v
-        mx = max(scores.values())
-        winners = [p for p in C.PERSONAS if scores[p] == mx]
-        if len(winners) > 1:
-            ties += 1
-        win[winners[0]] += 1  # 平局归第一个；ties 单独报
-    return win, ties
+    for _ in range(samples):
+        order = C.select_trial_order()
+        nodes = [C.NODES[nid] for nid in order]
+        # 每套题枚举 3^5=243 条路径；200 套约 4.8 万路径，足够快。
+        for combo in itertools.product(*[list(n["choices"]) for n in nodes]):
+            scores = score_combo(nodes, combo)
+            for p, v in scores.items():
+                coverage[p] += v
+            mx = max(scores.values())
+            winners = [p for p in C.PERSONAS if scores[p] == mx]
+            ties += len(winners) > 1
+            wins[winners[0]] += 1
+    return coverage, wins, ties
 
 
 def main():
-    print("=== ① 覆盖性（每人总 delta，目标 6-9）===")
-    cov = coverage()
-    ok_cov = True
-    for p in C.PERSONAS:
-        v = cov[p]
-        flag = "" if 6 <= v <= 9 else f"  ⚠ 不在 6-9"
-        if not (6 <= v <= 9):
-            ok_cov = False
-        print(f"  {p:<9}{v:>2}  {'█'*v}{flag}")
+    print("=== ① 阶段覆盖（每段至少 2 题）===")
+    stages = stage_counts()
+    ok_stage = True
+    for stage in C.TRIAL_STAGE_SEQUENCE:
+        count = stages.get(stage, 0)
+        ok = count >= 2
+        ok_stage = ok_stage and ok
+        print(f"  {stage:<9}{count:>2}  {'✓' if ok else '⚠'}")
 
-    print("\n=== ② 多样性（27 路径最高分人格分布）===")
-    win, ties = diversity()
+    print("\n=== ② 抽样组卷多样性（200 套 × 243 路径）===")
+    coverage, wins, ties = sampled_diversity()
     ok_div = True
     for p in C.PERSONAS:
-        c = win[p]
-        flag = ""
-        if c >= 20:
-            flag = "  ⚠ 占 20+ 条（趋同）"; ok_div = False
-        if c == 0:
-            flag = "  ⚠ 0 胜（测不出）"; ok_div = False
-        print(f"  {p:<9}{c:>2}/27  {'█'*c}{flag}")
-    print(f"  含平局路径: {ties}/27")
+        win = wins[p]
+        ok = win > 0
+        ok_div = ok_div and ok
+        print(f"  {p:<9}win={win:>5}  coverage={coverage[p]:>6}  {'✓' if ok else '⚠ 0 胜'}")
+    print(f"  含平局路径: {ties}")
 
     print("\n=== 结论 ===")
-    print(f"  覆盖性: {'通过' if ok_cov else '不通过——调 delta'}")
+    print(f"  阶段覆盖: {'通过' if ok_stage else '不通过——补题'}")
     print(f"  多样性: {'通过' if ok_div else '不通过——调 delta'}")
-    return ok_cov and ok_div
+    return ok_stage and ok_div
 
 
 if __name__ == "__main__":

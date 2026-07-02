@@ -25,17 +25,21 @@ async def health():
 
 
 @app.get("/api/nodes")
-async def nodes():
-    """给前端的地牢内容：场景 + 选项文案 + 插话名单。不含 delta（积分只在后端）。"""
-    return {
+async def nodes(topic: str = ""):
+    """给前端的本轮试炼：有序题目 + 场景 + 选项文案 + 插话名单。不含 delta。"""
+    order = constants.select_trial_order(topic)
+    node_map = {
         nid: {
             "place": n["place"],   # 中性地点名；axis 测量轴不下发，避免剧透
             "scene": n["scene"],
+            "bridge": n.get("bridge", "几个声音在你脑内争了起来——"),
             "interject": n["interject"],
             "choices": {cid: c["text"] for cid, c in n["choices"].items()},
         }
         for nid, n in constants.NODES.items()
+        if nid in order
     }
+    return {"order": order, "nodes": node_map}
 
 
 class InterjectRequest(BaseModel):
@@ -69,7 +73,7 @@ ASK_SYS = (
     "logician_q = 计算师问“你现实里有什么牌/资源”（资源盘点：存款、技能、人脉、时间、健康、试错的余地……等等）；\n"
     "selfcore_q = 本我问“你到底想要什么”（真实欲望，直白、戳破伪装）。\n"
     "结合用户的议题和他在试炼里的选择行为来改写问法：至少一问要点到他的具体选择"
-    "（如“你三道门都先观察”），让问题贴着这个人。"
+    "（如“你一路都先观察”），让问题贴着这个人。"
     "每问 ≤40 字。只输出 JSON：{\"logician_q\":\"...\",\"selfcore_q\":\"...\"}。"
 )
 
@@ -82,7 +86,7 @@ async def ask(req: AskRequest):
     """
     topic = req.topic or req.state.get("topic") or "（未填议题）"
     try:
-        user = f"议题：{topic}\n他在三道门的选择：{scoring.choice_summary(req.state)}"
+        user = f"议题：{topic}\n他在试炼中的选择：{scoring.choice_summary(req.state)}"
         kwargs = {
             "model": models.JSON_MODEL,  # 非推理模型出干净 JSON（flash 的 json_object 出乱码）
             "messages": [{"role": "system", "content": ASK_SYS},
@@ -243,6 +247,138 @@ async def meeting_debate(req: DebateRequest):
     )
 
 
+ROUND_TASKS = {
+    2: {
+        "phase": "blind_spot",
+        "label": "盲点交锋",
+        "instruction": (
+            "这是第二轮。不要复述自己上一轮观点。你必须点名回应上一轮某个声音，"
+            "指出它漏看了什么、误判了什么，或它把用户推向了什么风险。"
+            "第一行仍只能是三者之一：【支持{name_a}】/【支持{name_b}】/【第三条路】。"
+            "第二行不超过90字。"
+        ),
+    },
+    3: {
+        "phase": "bottom_line",
+        "label": "底线交换",
+        "instruction": (
+            "这是最后一轮。不要复述前两轮观点。你要给出你的底线："
+            "如果用户不听你，最可能付出的代价是什么；如果听你，你最低能接受什么妥协条件。"
+            "第一行仍只能是三者之一：【支持{name_a}】/【支持{name_b}】/【第三条路】。"
+            "第二行不超过90字。"
+        ),
+    },
+}
+
+
+class RoundRequest(BaseModel):
+    state: dict = {}
+    duelists: list[str]
+    round: int = 2
+
+
+def _transcript_lines(state: dict, duelists: list) -> str:
+    name_a = personas.PERSONA_NAMES.get(duelists[0], duelists[0]) if duelists else "甲方"
+    name_b = personas.PERSONA_NAMES.get(duelists[1], duelists[1]) if len(duelists) > 1 else "乙方"
+    lines = []
+    phase_name = {
+        "duel": "对峙",
+        "stance": "立场",
+        "blind_spot": "盲点",
+        "bottom_line": "底线",
+    }
+    for e in state.get("transcript") or []:
+        nm = personas.PERSONA_NAMES.get(e.get("persona"), e.get("persona"))
+        label = _STANCE_LABEL.get(e.get("stance"), "").format(a=name_a, b=name_b)
+        r = e.get("round", 1)
+        ph = phase_name.get(e.get("phase"), e.get("phase") or "发言")
+        lines.append(f"第{r}轮·{ph}｜{nm}（{label}）：{e.get('text', '')}")
+    return "\n".join(lines) if lines else "（无记录）"
+
+
+def _persona_history(state: dict, pid: str) -> list[str]:
+    return [
+        e.get("text", "")
+        for e in state.get("transcript") or []
+        if e.get("persona") == pid and e.get("text")
+    ]
+
+
+def _too_similar(text: str, history: list[str]) -> bool:
+    import difflib
+
+    cleaned = (text or "").strip()
+    if not cleaned:
+        return False
+    return any(difflib.SequenceMatcher(None, cleaned, old).ratio() > 0.62 for old in history)
+
+
+def _round_prompt(state: dict, duelists: list, round_no: int, pid: str, retry: bool = False) -> str:
+    a, b = duelists[0], duelists[1]
+    name_a, name_b = personas.PERSONA_NAMES[a], personas.PERSONA_NAMES[b]
+    ctx = _meeting_ctx(state)
+    task = ROUND_TASKS.get(round_no, ROUND_TASKS[2])
+    own_history = "\n".join(f"- {t}" for t in _persona_history(state, pid)) or "（你还没有旧发言）"
+    retry_line = (
+        "\n上一次太像旧观点了。这次必须换一个具体角度、回应另一条发言、不要使用同样的句子。"
+        if retry else ""
+    )
+    return (
+        f"用户的真实议题是：{ctx['topic']}\n"
+        f"用户的自陈——拥有：{ctx['assets']}；渴望：{ctx['desire']}\n"
+        f"用户在试炼中的表现摘要：{ctx['summary']}\n"
+        f"会议至今的全部记录：\n{_transcript_lines(state, duelists)}\n\n"
+        f"你自己之前说过：\n{own_history}\n\n"
+        f"{task['instruction'].format(name_a=name_a, name_b=name_b)}"
+        "禁止重复自己之前的话，禁止重新做人格自我介绍，禁止和稀泥。"
+        f"{retry_line}"
+    )
+
+
+async def _round_one(pid: str, state: dict, duelists: list, round_no: int):
+    task = ROUND_TASKS.get(round_no, ROUND_TASKS[2])
+    name_a = personas.PERSONA_NAMES[duelists[0]]
+    name_b = personas.PERSONA_NAMES[duelists[1]]
+    history = _persona_history(state, pid)
+    text, query, stance = "", "", None
+    for attempt in range(2):
+        user = _round_prompt(state, duelists, round_no, pid, retry=attempt > 0)
+        stance, text, query = await _debate_one(pid, user, name_a, name_b, topic=_meeting_ctx(state)["topic"])
+        if not _too_similar(text, history):
+            break
+    return {
+        "persona": pid,
+        "name": personas.PERSONA_NAMES[pid],
+        "stance": stance or "third",
+        "text": text or "（这个声音短暂沉默了。）",
+        "query": query,
+        "round": round_no,
+        "phase": task["phase"],
+    }
+
+
+async def round_stream(state: dict, duelists: list, round_no: int):
+    order = list(duelists) + scoring.debate_order(state, duelists)
+    task = ROUND_TASKS.get(round_no, ROUND_TASKS[2])
+    for pid in order:
+        ev = await _round_one(pid, state, duelists, round_no)
+        if not ev.get("query"):
+            ev.pop("query", None)
+        yield _sse(ev)
+    yield _sse({"done": True, "round": round_no, "phase": task["phase"]})
+
+
+@app.post("/api/meeting/round")
+async def meeting_round(req: RoundRequest):
+    """第二/三轮追问：盲点交锋、底线交换。每轮仍让六个人格逐个切入发言。"""
+    round_no = max(2, min(3, req.round))
+    return StreamingResponse(
+        round_stream(req.state, req.duelists, round_no),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
 VERDICT_SYS = (
     "你是这场内心会议的书记。用户已经做出最终裁决。"
     "你的任务：把用户的裁决展开成一份结构化、可执行的决策建议书，并附风险与落败方的保留意见。"
@@ -276,12 +412,7 @@ def _build_verdict_user(state: dict, duelists: list, verdict: str, note: str) ->
     name_a = personas.PERSONA_NAMES.get(duelists[0], duelists[0]) if duelists else "甲方"
     name_b = personas.PERSONA_NAMES.get(duelists[1], duelists[1]) if duelists else "乙方"
 
-    lines = []
-    for e in state.get("transcript") or []:
-        nm = personas.PERSONA_NAMES.get(e.get("persona"), e.get("persona"))
-        label = _STANCE_LABEL.get(e.get("stance"), "").format(a=name_a, b=name_b)
-        lines.append(f"{nm}（{label}）：{e.get('text', '')}")
-    transcript_text = "\n".join(lines) if lines else "（无记录）"
+    transcript_text = _transcript_lines(state, duelists)
 
     def _names(items):
         out = []
