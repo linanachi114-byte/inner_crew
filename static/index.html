@@ -22,9 +22,6 @@
     background:var(--ground); color:var(--bone);
     font-family:var(--serif); font-weight:300; line-height:1.7;
     -webkit-font-smoothing:antialiased; min-height:100%;
-    background-image:
-      radial-gradient(120% 90% at 50% -10%, #241d33 0%, var(--ground) 55%),
-      radial-gradient(100% 120% at 110% 110%, #1a1422 0%, transparent 60%);
   }
   body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.045;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
@@ -398,6 +395,7 @@
   .vbtn.back-choice:hover{border-color:var(--guardian)}
   .verdict-submit{width:calc((100% - 36px)/4);min-width:140px}
   .wide-go{min-width:240px}
+  .detail-page .wide-go{width:100%}
   #verdict-zone{margin-bottom:34px}
   .continue-zone{margin:26px 0 8px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
   .continue-zone h2{font-size:1.28rem;margin-bottom:4px}
@@ -543,6 +541,28 @@
     box-shadow:inset 0 0 44px color-mix(in srgb,var(--c) 12%,transparent)}
   .persona-modal-hint{margin-top:16px;color:#eee5d2;font-size:.78rem;letter-spacing:.16em}
   body.meeting-paused #s-meeting *{animation-play-state:paused!important}
+  .history-button{position:fixed;right:18px;top:18px;z-index:88;width:42px;height:42px;border-radius:50%;
+    border:1px solid color-mix(in srgb,var(--brass) 42%,var(--line));color:var(--brass);
+    background:linear-gradient(160deg,#2a2230,#18141f);box-shadow:0 12px 30px -18px rgba(0,0,0,.9);
+    display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;opacity:.76}
+  .history-button:hover{opacity:1;transform:translateY(-1px);box-shadow:0 18px 36px -18px color-mix(in srgb,var(--brass) 48%,transparent)}
+  .history-modal{position:fixed;inset:0;z-index:118;display:none;align-items:flex-start;justify-content:flex-end;
+    background:rgba(5,6,12,.62);backdrop-filter:blur(5px);padding:76px 20px 24px}
+  .history-modal.show{display:flex;animation:fadein .2s ease both}
+  .history-panel{width:min(460px,100%);max-height:calc(100vh - 100px);overflow:auto;border:1px solid var(--line);border-radius:8px;
+    background:linear-gradient(160deg,#1f1a28,#14111b);padding:18px;box-shadow:0 24px 70px -30px rgba(0,0,0,.9)}
+  .history-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .history-head h2{font-size:1.16rem;margin:0}
+  .history-close{border:1px solid var(--line);background:var(--ground-2);color:var(--muted);border-radius:50%;width:30px;height:30px}
+  .history-list{display:flex;flex-direction:column;gap:10px}
+  .history-item{text-align:left;border:1px solid var(--line);border-radius:6px;background:color-mix(in srgb,var(--panel) 42%,transparent);
+    color:var(--bone);padding:12px 13px}
+  .history-item:hover{border-color:var(--brass);transform:translateY(-1px)}
+  .history-item .time{font-family:var(--mono);font-size:.68rem;color:var(--faint);margin-bottom:4px}
+  .history-item .topic{font-size:.96rem;line-height:1.55;color:#eee5d2;margin-bottom:6px}
+  .history-item .meta{display:flex;flex-wrap:wrap;gap:6px;font-size:.72rem;color:var(--muted)}
+  .history-chip{border:1px solid var(--line);border-radius:12px;padding:1px 8px;color:var(--brass)}
+  .history-empty{color:var(--faint);font-size:.9rem;line-height:1.8;padding:18px 4px}
   .deck-back-portrait{position:absolute;right:9px;top:7px;width:76px;height:86px;object-fit:contain;opacity:.92;
     filter:drop-shadow(0 0 12px color-mix(in srgb,var(--c) 55%,transparent)) drop-shadow(0 5px 8px rgba(0,0,0,.5));pointer-events:none}
   .deck-back-kicker{font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--c);margin-bottom:5px}
@@ -774,6 +794,20 @@
 
 </main>
 
+<button class="history-button" id="history-open" type="button" title="查看历史记录" aria-label="查看历史记录">卷</button>
+<div class="history-modal" id="history-modal" aria-hidden="true">
+  <div class="history-panel">
+    <div class="history-head">
+      <div>
+        <p class="eyebrow" style="margin-bottom:6px">History</p>
+        <h2>历史会议记录</h2>
+      </div>
+      <button class="history-close" id="history-close" type="button" aria-label="关闭历史记录">×</button>
+    </div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+</div>
+
 <div class="persona-modal" id="persona-modal" aria-hidden="true">
   <div class="persona-modal-card" id="persona-modal-card"></div>
   <p class="persona-modal-hint">点击任何位置退出卡片</p>
@@ -802,11 +836,124 @@ let meetingSides={a:'方案 A',b:'方案 B'};
 let lastReport=null;
 
 const $=id=>document.getElementById(id);
-const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0);};
+const show=id=>{
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  syncHistoryButton();
+  window.scrollTo(0,0);
+};
 const pmeta=p=>PERSONA[p]||{n:p,v:'--brass',f:''};
 const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const cloneJSON=x=>JSON.parse(JSON.stringify(x??{}));
 function scrollFlowEnd(behavior='smooth'){
   requestAnimationFrame(()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior}));
+}
+const HISTORY_KEY='inner_crew_history_v1';
+function historyRecords(){
+  try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');}
+  catch(e){return [];}
+}
+function writeHistoryRecords(records){
+  localStorage.setItem(HISTORY_KEY,JSON.stringify(records.slice(0,40)));
+}
+function finalChoiceText(pick,sides){
+  if(pick==='a')return `支持“${sides?.a||'方案 A'}”`;
+  if(pick==='b')return `支持“${sides?.b||'方案 B'}”`;
+  if(pick==='synthesis')return '综合裁断';
+  return '尚未裁断';
+}
+function runtimeSnapshot(){
+  return {
+    state:cloneJSON(state),
+    duelists:[...duelists],
+    verdictPick,
+    meetingRound,
+    meetingSides:cloneJSON(meetingSides),
+    lastReport:cloneJSON(lastReport||{})
+  };
+}
+function applyRuntimeSnapshot(snap){
+  Object.keys(state).forEach(k=>delete state[k]);
+  Object.assign(state,cloneJSON(snap.state||{}));
+  duelists=[...(snap.duelists||[])];
+  verdictPick=snap.verdictPick||null;
+  meetingRound=snap.meetingRound||1;
+  meetingSides=cloneJSON(snap.meetingSides||{a:'方案 A',b:'方案 B'});
+  lastReport=cloneJSON(snap.lastReport||{});
+}
+function saveHistoryRecord(report){
+  if(!report||!state.topic)return;
+  prepareMeetingSides();
+  const now=new Date().toISOString();
+  const rec={
+    id:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
+    createdAt:now,
+    topic:state.topic||'（未填写议题）',
+    verdict:verdictPick||'',
+    verdictLabel:finalChoiceText(verdictPick,meetingSides),
+    sides:cloneJSON(meetingSides),
+    duelists:[...duelists],
+    meetingRound,
+    transcriptCount:(state.transcript||[]).length,
+    state:cloneJSON({...state,_replayVerdict:undefined}),
+    report:cloneJSON(report)
+  };
+  writeHistoryRecords([rec,...historyRecords()]);
+  syncHistoryButton();
+}
+function formatHistoryTime(iso){
+  try{return new Date(iso).toLocaleString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}
+  catch(e){return iso||'';}
+}
+function syncHistoryButton(){
+  const btn=$('history-open');
+  if(!btn)return;
+  btn.style.display='flex';
+}
+function renderHistoryList(){
+  const list=$('history-list'), records=historyRecords();
+  if(!records.length){
+    list.innerHTML='<p class="history-empty">还没有历史会议。完成一次决策建议书后，它会自动收进这里。</p>';
+    return;
+  }
+  list.innerHTML=records.map(r=>`<button class="history-item" type="button" data-id="${esc(r.id)}">
+    <div class="time">${esc(formatHistoryTime(r.createdAt))}</div>
+    <div class="topic">${esc(r.topic||'（未填写议题）')}</div>
+    <div class="meta"><span class="history-chip">${esc(r.verdictLabel||finalChoiceText(r.verdict,r.sides))}</span><span>${esc((r.transcriptCount||0)+' 条发言')}</span></div>
+  </button>`).join('');
+  list.querySelectorAll('.history-item').forEach(btn=>{
+    btn.onclick=()=>openHistoryRecord(btn.dataset.id);
+  });
+}
+function openHistoryModal(){
+  renderHistoryList();
+  $('history-modal').classList.add('show');
+  $('history-modal').setAttribute('aria-hidden','false');
+}
+function closeHistoryModal(){
+  $('history-modal').classList.remove('show');
+  $('history-modal').setAttribute('aria-hidden','true');
+}
+async function openHistoryRecord(id){
+  const rec=historyRecords().find(x=>x.id===id);
+  if(!rec)return;
+  const backup=runtimeSnapshot();
+  applyRuntimeSnapshot({
+    state:rec.state,
+    duelists:rec.duelists,
+    verdictPick:rec.verdict,
+    meetingRound:rec.meetingRound,
+    meetingSides:rec.sides,
+    lastReport:rec.report
+  });
+  try{
+    const detail=await postJSON('/api/detail/trials',{state});
+    renderDetailRecord(detail);
+    closeHistoryModal();
+    show('s-detail');
+  }finally{
+    applyRuntimeSnapshot(backup);
+  }
 }
 
 async function postJSON(url,body){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json();}
@@ -1101,6 +1248,11 @@ function hidePersonaModal(){
 }
 $('persona-modal').onclick=hidePersonaModal;
 document.addEventListener('keydown',e=>{if(e.key==='Escape')hidePersonaModal();});
+$('history-open').onclick=openHistoryModal;
+$('history-close').onclick=closeHistoryModal;
+$('history-modal').onclick=e=>{if(e.target===$('history-modal'))closeHistoryModal();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHistoryModal();});
+syncHistoryButton();
 function goRoster(){
   show('s-roster');
   deckFlipped.clear();
@@ -1409,11 +1561,11 @@ function arenaJoinCamp(pid,stance){                        // 7 配角跑向阵�
   let left;
   if(stance==='a'){
     el.classList.add('member');
-    left=20+campCount.a*5.2; campCount.a++; el.style.zIndex=3+campCount.a;
+    left=24+campCount.a*6.2; campCount.a++; el.style.zIndex=3+campCount.a;
   }
   else if(stance==='b'){
     el.classList.add('member','face-left');
-    left=80-campCount.b*5.2; campCount.b++; el.style.zIndex=3+campCount.b;
+    left=76-campCount.b*6.2; campCount.b++; el.style.zIndex=3+campCount.b;
   }
   else { el.classList.remove('member'); left=46+campCount.third*5; campCount.third++; }
   el.classList.add('in','running'); el.style.left=left+'%';
@@ -1724,6 +1876,7 @@ function renderReport(r){
   $('r-risk').textContent=r.risk_notes||'';
   $('r-dissent').textContent=r.dissent?('「'+r.dissent+'」'):'';
   $('r-topic').textContent=(state.topic||'').trim()?('议题 · '+state.topic.trim()):'';
+  saveHistoryRecord(r);
   show('s-report');
 }
 function pmeta_byname(name){for(const k in PERSONA)if(PERSONA[k].n===name)return PERSONA[k].v;return '--brass';}
