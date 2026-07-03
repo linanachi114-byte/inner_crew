@@ -280,7 +280,7 @@ NODES: dict = {
 # CARDS（想法卡片）：把地牢分数翻译成"指着具体行为说话"的观察 + 对会议 weights 的 ±1 修正。
 # 写卡守则：①复述行为再"轻轻拧一下"给新视角（禁贴标签）②标题名词化有余味
 #          ③effect 反向制衡、±1 封顶 ④保底卡写"均衡"本身。
-# settle（阶段2）逻辑：取 trigger 命中的前两张；都没中则发 is_fallback 那张保底卡。
+# settle 逻辑：取 trigger 命中的多张；不足时补最高共振人格的通用卡；都没中则发 is_fallback 保底卡。
 CARDS: list = [
     {
         "id": "act_first",
@@ -336,7 +336,7 @@ CARDS: list = [
                 "你要的从来不是抵达，是那束光本身。",
         "effect": {"logician": +1},
     },
-    # —— 组合卡（非 top_persona 条件，可与上面的主题卡同时掉，凑满"1-2 张"）——
+    # —— 组合卡（非 top_persona 条件，可与上面的主题卡同时掉，凑满多张掉落）——
     {
         "id": "all_in",
         "title": "孤注一掷",

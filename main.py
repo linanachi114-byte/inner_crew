@@ -405,15 +405,13 @@ VERDICT_USER_TMPL = (
     "议题：{topic}\n"
     "用户自陈——拥有：{assets}；渴望：{desire}\n"
     "会议记录：\n{transcript}\n"
-    "用户点赞「有道理」的发言来自：{likes}\n"
-    "用户标「不认同」的发言来自：{dislikes}\n"
     "用户的最终裁决：{decision}\n\n"
-    "写建议书时：用户点赞的发言重点采纳并融进 action_steps；"
-    "用户标不认同的发言要弱化，或在 risk_notes/dissent 里简短回应"
-    "「为什么不取它」，别当它没说过。\n"
+    "写建议书时：严格依据会议记录和用户裁决；不要重开辩论，不要把未被选择的一侧写成最终建议，"
+    "但要在 risk_notes/dissent 中保留它有价值的提醒。\n"
     "输出 JSON，字段：\n"
     "verdict_summary（字符串，以用户裁决为基调的方向总结）、\n"
-    "persona_positions（数组，每项 {{\"persona\":人格名,\"stance\":立场,\"key_point\":一句话要点}}）、\n"
+    "persona_positions（数组，每项 {{\"persona\":人格名,\"stance\":立场,\"key_point\":立场说明}}；"
+    "key_point 必须比普通摘要更丰满，写 2 句左右，说明它支持什么、为什么支持，或它真正担心什么；每项约 45-90 字）、\n"
     "action_steps（字符串数组，围绕裁决/补充拆出的可执行步骤）、\n"
     "risk_notes（字符串，守护者视角的风险提示）、\n"
     "dissent（字符串，落败一方人格的一句保留意见）。"
@@ -429,17 +427,6 @@ def _build_verdict_user(state: dict, duelists: list, verdict: str, note: str) ->
 
     transcript_text = _transcript_lines(state, duelists)
 
-    def _names(items):
-        out = []
-        for it in items or []:
-            p = it[0] if isinstance(it, (list, tuple)) else it.get("persona") if isinstance(it, dict) else None
-            if p:
-                out.append(personas.PERSONA_NAMES.get(p, p))
-        return "、".join(dict.fromkeys(out)) if out else "（无）"
-
-    likes_text = _names(state.get("likes"))
-    dislikes_text = _names(state.get("dislikes"))
-
     if verdict == "a":
         decision = f"听从{name_a}的主张"
     elif verdict == "b":
@@ -451,8 +438,7 @@ def _build_verdict_user(state: dict, duelists: list, verdict: str, note: str) ->
 
     return VERDICT_USER_TMPL.format(
         topic=ctx["topic"], assets=ctx["assets"], desire=ctx["desire"],
-        transcript=transcript_text, likes=likes_text, dislikes=dislikes_text,
-        decision=decision,
+        transcript=transcript_text, decision=decision,
     )
 
 
@@ -463,8 +449,8 @@ async def _run_verdict(user: str, tries: int = 2):
                 "model": models.JSON_MODEL,  # 非推理模型出干净 JSON（flash 的 json_object 出乱码）
                 "messages": [{"role": "system", "content": VERDICT_SYS},
                              {"role": "user", "content": user}],
-                "max_tokens": max(1200, models.reasoning_token_floor(models.JSON_MODEL) + 1200)
-                if models.needs_reasoning_budget(models.JSON_MODEL) else 1200,
+                "max_tokens": max(1900, models.reasoning_token_floor(models.JSON_MODEL) + 1900)
+                if models.needs_reasoning_budget(models.JSON_MODEL) else 1900,
                 "response_format": {"type": "json_object"},
             }
             extra = models.reasoning_extra(models.JSON_MODEL)
@@ -505,7 +491,7 @@ class SettleRequest(BaseModel):
 
 @app.post("/api/settle")
 async def settle(req: SettleRequest):
-    """卡片结算（纯函数零 LLM）：命中取前两张、没中发保底，按 effect 更新 weights。"""
+    """卡片结算（纯函数零 LLM）：命中取多张、没中发保底，按 effect 更新 weights。"""
     new_state, cards = scoring.settle(req.state)
     return {"state": new_state, "cards": cards, "jab": scoring.silenced_jab(new_state)}
 

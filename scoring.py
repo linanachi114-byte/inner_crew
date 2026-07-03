@@ -140,7 +140,7 @@ def _eval_state(state: dict) -> dict:
 
 
 def settle(state: dict):
-    """卡片结算（纯函数零 LLM）：trigger 命中取前两张；都没中发保底卡；按 effect 更新 weights。
+    """卡片结算（纯函数零 LLM）：trigger 命中取多张；都没中发保底卡；按 effect 更新 weights。
 
     返回 (新 state, 选中卡的展示数据列表)。
     """
@@ -157,7 +157,31 @@ def settle(state: dict):
         except Exception:
             continue  # trigger 异常视为未命中，不拖垮结算
 
-    selected = triggered[:2]
+    selected = triggered[:4]
+    if len(selected) < 4:
+        selected_ids = {c["id"] for c in selected}
+        generic_by_persona = {
+            "ambition": "generic_ambition",
+            "guardian": "generic_guardian",
+            "empath": "generic_empath",
+            "selfcore": "generic_selfcore",
+            "logician": "generic_logician",
+            "dreamer": "generic_dreamer",
+        }
+        ranked = sorted(
+            constants.PERSONAS,
+            key=lambda p: es["scores"].get(p, 0) + (state.get("weights") or {}).get(p, 0),
+            reverse=True,
+        )
+        for pid in ranked:
+            cid = generic_by_persona.get(pid)
+            card = next((c for c in constants.CARDS if c["id"] == cid), None)
+            if card and cid not in selected_ids:
+                selected.append(card)
+                selected_ids.add(cid)
+            if len(selected) >= 4:
+                break
+
     if not selected:
         fb = next((c for c in constants.CARDS if c.get("is_fallback")), None)
         selected = [fb] if fb else []
@@ -171,7 +195,60 @@ def settle(state: dict):
     cards = list(state.get("cards") or []) + [c["id"] for c in selected]
     new_state = {**state, "weights": weights, "cards": cards}
     shown = [
-        {"id": c["id"], "title": c["title"], "text": c["text"], "effect": c["effect"]}
+        {
+            "id": c["id"],
+            "title": c["title"],
+            "text": c["text"],
+            "effect": c["effect"],
+            "reason": _card_reason(c, es),
+        }
         for c in selected
     ]
     return new_state, shown
+
+
+def _card_reason(card: dict, state: dict) -> str:
+    """给掉落卡片找一条可解释的试炼依据。"""
+    import constants
+
+    choices = state.get("choices") or []
+    if not choices:
+        return "获取理由：这张卡来自你整段试炼里反复出现的倾向。"
+
+    id_to_hint = {
+        "act_first": ("node1", "A"),
+        "perfectionism": ("node1", "B"),
+        "others_first": ("node2", "A"),
+        "naked_want": ("node2", "B"),
+        "the_ledger": ("node2", "C"),
+        "chasing_light": ("node3", "A"),
+        "all_in": ("node3", "C"),
+        "the_hesitant": ("node3", "B"),
+    }
+
+    target = id_to_hint.get(card.get("id"))
+    if target and any(c[0] == target[0] and c[1] == target[1] for c in choices):
+        node_id, cid = target
+    else:
+        effect_people = set((card.get("effect") or {}).keys())
+        top = top_persona(state.get("scores") or {})
+        node_id, cid = choices[-1][0], choices[-1][1]
+        best = None
+        for item in choices:
+            n_id, c_id = item[0], item[1]
+            node = constants.NODES.get(n_id)
+            if not node or c_id not in node["choices"]:
+                continue
+            delta = node["choices"][c_id].get("delta") or {}
+            score = sum(abs(delta.get(p, 0)) for p in effect_people)
+            if top in delta:
+                score += 2
+            if best is None or score > best[0]:
+                best = (score, n_id, c_id)
+        if best:
+            _, node_id, cid = best
+
+    node = constants.NODES.get(node_id)
+    if not node or cid not in node["choices"]:
+        return "获取理由：这张卡来自你整段试炼里反复出现的倾向。"
+    return f"获取理由：你在「{node['place']}」的情况下选择了「{node['choices'][cid]['text']}」。"

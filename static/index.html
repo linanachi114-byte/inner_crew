@@ -147,6 +147,9 @@
     border-color:var(--line);color:var(--faint);letter-spacing:.3em}
   .card .ctitle{font-weight:700;font-size:1.35rem;color:var(--brass);margin-bottom:12px}
   .card .ctext{font-size:1.08rem;line-height:1.8;color:#ddd6c8}
+  .card .card-hint{position:absolute;right:18px;bottom:14px;font-size:.68rem;letter-spacing:.12em;color:var(--faint)}
+  .card .card-reason{font-size:1rem;line-height:1.8;color:#ddd6c8;letter-spacing:0;text-align:left}
+  .card .card-reason .label{display:block;color:var(--brass);font-size:.72rem;letter-spacing:.22em;margin-bottom:10px}
   .jab{font-style:italic;color:var(--faint);font-size:.92rem;margin-top:18px;padding-left:14px;border-left:1px solid var(--line)}
 
   /* 天平 */
@@ -168,22 +171,17 @@
   .speech.side-b{margin-left:auto;border-left:none;border-right:3px solid var(--c);
     background:linear-gradient(260deg,color-mix(in srgb,var(--c) 12%,transparent),transparent 72%)}
   .speech.side-b .head{flex-direction:row-reverse}
-  .speech.side-b .react{margin-left:0;margin-right:auto}
   .speech.side-third{margin:0 auto;max-width:72%;border-left:3px dashed var(--c);
     background:color-mix(in srgb,var(--c) 8%,transparent)}
   .speech.side-third .head{justify-content:center}
-  .speech.side-third .react{margin-left:0}
   .speech .head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
   .speech .who{color:var(--c);font-weight:500;letter-spacing:.1em}
   .speech .stance{font-size:.72rem;border:1px solid var(--c);color:var(--c);border-radius:10px;padding:1px 9px;opacity:.85}
+  .speech .badge{font-size:.68rem;border:1px solid color-mix(in srgb,var(--brass) 70%,transparent);
+    color:var(--brass);border-radius:10px;padding:1px 8px;background:color-mix(in srgb,var(--brass) 10%,transparent)}
   .speech .searched{font-family:var(--mono);font-size:.68rem;color:var(--logician);
     background:color-mix(in srgb,var(--logician) 14%,transparent);border-radius:4px;padding:1px 7px;letter-spacing:-.01em}
   .speech .body{color:#e9e3d6;line-height:1.6}
-  .speech .react{margin-left:auto;display:flex;gap:6px;flex-shrink:0}
-  .speech .like,.speech .dislike{background:transparent;border:1px solid var(--line);color:var(--muted);
-    border-radius:14px;font-size:.74rem;padding:3px 11px;cursor:pointer;transition:border-color .2s,color .2s}
-  .speech .like.on{border-color:var(--brass);color:var(--brass)}
-  .speech .dislike.on{border-color:var(--ambition);color:var(--ambition)}
 
   /* —— 2.0 像素对战舞台（上方 arena，下方沿用气泡 #speeches） —— */
   /* 画框加高，给切入幕台词留足空间 */
@@ -210,13 +208,21 @@
   /* 三阵营区域:左A营 / 中第三条路 / 右B营,淡色地块+标签+虚线分界(队长确定后淡入) */
   .zones{position:absolute;inset:0;z-index:1;pointer-events:none;display:flex;opacity:0;transition:opacity .5s ease}
   .zones.show{opacity:1}
-  .zone{position:relative;display:flex;justify-content:center;align-items:flex-start;padding-top:21px}
+  .zone{position:relative;display:flex;justify-content:center;align-items:flex-start;padding-top:68px}
   .zone.za{flex:0 0 38%;background:linear-gradient(0deg,color-mix(in srgb,var(--za) 15%,transparent),transparent 52%)}
   .zone.zb{flex:0 0 38%;background:linear-gradient(0deg,color-mix(in srgb,var(--zb) 15%,transparent),transparent 52%)}
   .zone.zthird{flex:1;background:linear-gradient(0deg,color-mix(in srgb,var(--brass) 7%,transparent),transparent 52%);
     border-left:1px dashed color-mix(in srgb,#fff 15%,transparent);border-right:1px dashed color-mix(in srgb,#fff 15%,transparent)}
-  .zlabel{font-size:.64rem;letter-spacing:.16em;opacity:.9;white-space:nowrap}
+  .zlabel{display:none}
   .zone.za .zlabel{color:var(--za)} .zone.zb .zlabel{color:var(--zb)} .zone.zthird .zlabel{color:var(--faint)}
+  .arena-agenda{position:absolute;left:50%;top:24px;transform:translateX(-50%);z-index:4;max-width:72%;
+    text-align:center;color:#f2ebdc;font-size:.86rem;line-height:1.35;text-shadow:0 2px 12px #000,0 0 16px rgba(0,0,0,.8);
+    letter-spacing:.04em;pointer-events:none}
+  .camp-heading{position:absolute;top:46px;z-index:4;max-width:34%;color:#f4efe2;font-size:.82rem;line-height:1.35;
+    text-shadow:0 2px 12px #000,0 0 16px rgba(0,0,0,.82);pointer-events:none;opacity:.94}
+  .camp-heading.left{left:4%;text-align:left;color:var(--za)}
+  .camp-heading.right{right:4%;text-align:right;color:var(--zb)}
+  .camp-heading .tag{display:block;font-size:.58rem;letter-spacing:.2em;color:var(--muted);margin-bottom:1px}
   /* 月光地面 + 暗角 */
   #arena::before{content:"";position:absolute;left:0;right:0;bottom:0;height:44px;pointer-events:none;z-index:1;
     background:linear-gradient(180deg,color-mix(in srgb,#9fb4ff 7%,transparent),rgba(0,0,0,.45));
@@ -308,6 +314,7 @@
     background:color-mix(in srgb,var(--logician) 14%,transparent);border-radius:4px;padding:1px 7px;margin-bottom:6px}
   .focus-text{color:#f1ead9;line-height:1.65;font-size:1.04rem}
   #speeches.bw{filter:grayscale(1) opacity(.5);transition:filter .4s ease}
+  #speeches{display:flex;flex-direction:column}
   /* —— 发言切入幕（逆转裁判式）：发言者放大占满画框 + 名牌 + 底部对话框；支持A靠左/支持B靠右镜像 —— */
   .cutin{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .24s ease;
     background:
@@ -377,6 +384,9 @@
   .continue-btns{display:flex;flex-wrap:wrap;gap:12px}
   .continue-btns .go{margin-top:0}
   .continue-btns .choice{flex:1;margin:0;min-width:180px;text-align:center}
+  .verdict-back{margin-top:24px;margin-left:10px;background:transparent;border:1px solid var(--line);color:var(--muted);
+    border-radius:2px;padding:13px 26px;font-size:.98rem;font-weight:500;letter-spacing:.04em}
+  .verdict-back:hover{border-color:var(--brass);color:var(--brass)}
 
   .report .block{margin-bottom:24px}
   .report h3{font-size:.78rem;letter-spacing:.28em;text-transform:uppercase;color:var(--brass);margin-bottom:8px}
@@ -387,6 +397,8 @@
   .report li.pos-sep{list-style:none;padding-left:0;opacity:.6;font-size:.82rem;color:var(--faint);font-style:italic;margin:16px 0 6px}
   .report li.pos-sep::before{content:""}
   .report .dissent{font-style:italic;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;margin-top:8px}
+  .report-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+  .report-actions .go{margin-top:0}
   .hint{font-size:.84rem;color:var(--faint);margin-top:6px}
   .err{color:var(--ambition);font-size:.9rem;margin-top:10px}
   .q-pending{font-style:italic;opacity:.55;animation:blink 1.4s ease-in-out infinite}
@@ -400,6 +412,7 @@
     .random-topic{padding:11px 16px}
     .verdict-btns,.continue-btns{flex-direction:column}
     .vbtn,.continue-btns .choice{min-width:0}
+    .verdict-back{display:block;width:100%;margin-left:0}
   }
   /* —— BGM 开关:金色声波,播放时律动,关闭时压平变暗 —— */
   #bgm-toggle{position:fixed;right:20px;bottom:20px;z-index:100;width:44px;height:44px;border-radius:50%;
@@ -428,16 +441,37 @@
     max-width:24ch;margin:6px auto 2px;font-weight:400;
     text-shadow:0 0 26px color-mix(in srgb,var(--brass) 32%,transparent)}
   .roster-lede{color:var(--muted);font-size:.94rem;margin:2px 0 6px;max-width:30ch}
+  .roster-hint{color:var(--faint);font-size:.82rem;margin:4px 0 0;letter-spacing:.03em}
   .deck{position:relative;width:min(76vw,300px);aspect-ratio:97/134;
     margin:34px auto 4px;overflow:visible;touch-action:pan-y}
-  .deck-card{position:absolute;inset:0;border-radius:14px;overflow:hidden;cursor:grab;
-    box-shadow:0 26px 64px -24px rgba(0,0,0,.9);
+  .deck-card{position:absolute;inset:0;border-radius:14px;cursor:grab;perspective:1200px;
     transition:transform .52s cubic-bezier(.22,.7,.22,1),opacity .52s,filter .52s;
     will-change:transform,opacity}
-  .deck-card img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;
+  .deck-inner{position:absolute;inset:0;border-radius:14px;transform-style:preserve-3d;
+    transition:transform .68s cubic-bezier(.22,.72,.22,1);
+    box-shadow:0 26px 64px -24px rgba(0,0,0,.9)}
+  .deck-card.is-flipped .deck-inner{transform:rotateY(180deg)}
+  .deck-face{position:absolute;inset:0;border-radius:14px;overflow:hidden;backface-visibility:hidden;
+    background:linear-gradient(160deg,#241c33,#15101d)}
+  .deck-face.front img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;
     -webkit-user-drag:none;user-select:none}
-  .deck-card::after{content:"";position:absolute;inset:0;border-radius:14px;pointer-events:none;
+  .deck-face.front::after{content:"";position:absolute;inset:0;border-radius:14px;pointer-events:none;
     box-shadow:inset 0 0 0 1px rgba(231,224,208,.14)}
+  .deck-tap{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);
+    font-size:.66rem;letter-spacing:.14em;color:#eee5d2;background:rgba(10,9,14,.62);
+    border:1px solid rgba(231,224,208,.18);border-radius:20px;padding:2px 10px;white-space:nowrap}
+  .deck-face.back{transform:rotateY(180deg);display:flex;flex-direction:column;text-align:left;
+    padding:18px 18px 16px;border:1px solid color-mix(in srgb,var(--c) 48%,var(--line));
+    box-shadow:inset 0 0 44px color-mix(in srgb,var(--c) 12%,transparent)}
+  .deck-back-kicker{font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--c);margin-bottom:5px}
+  .deck-back-title{font-size:1.32rem;font-weight:700;color:#f1ead9;line-height:1.1;margin-bottom:7px}
+  .deck-back-role{font-size:.84rem;line-height:1.45;color:var(--bone);margin-bottom:10px}
+  .deck-back-desc{font-size:.78rem;line-height:1.55;color:var(--muted);margin-bottom:auto}
+  .deck-back-row{border-top:1px solid color-mix(in srgb,var(--c) 28%,transparent);padding-top:9px;margin-top:12px}
+  .deck-back-label{display:block;font-size:.6rem;letter-spacing:.18em;color:var(--faint);margin-bottom:2px}
+  .match-stars{font-size:.95rem;letter-spacing:.08em;color:var(--brass);line-height:1.2}
+  .match-stars .off{color:color-mix(in srgb,var(--faint) 64%,transparent)}
+  .deck-back-note{font-size:.72rem;line-height:1.45;color:#d7cfbf;margin-top:7px}
   .deck-caption{min-height:1.4em;font-size:.96rem;letter-spacing:.04em;margin:14px 0 2px;
     font-weight:500;transition:color .4s}
   .deck-nav{display:flex;align-items:center;justify-content:center;gap:clamp(18px,5vw,30px);margin-top:6px}
@@ -450,11 +484,48 @@
   .deck-dots i{width:7px;height:7px;border-radius:50%;background:var(--faint);cursor:pointer;
     transition:transform .3s,background .3s}
   .deck-dots i.on{background:var(--brass);transform:scale(1.3)}
+  @media (max-width:560px){
+    .deck{width:min(86vw,330px);margin-top:28px}
+    .deck-card{cursor:pointer}
+    .deck-back-title{font-size:1.2rem}
+    .deck-back-role{font-size:.8rem}
+    .deck-back-desc{font-size:.74rem}
+  }
+
+  /* —— 会议仪式过场 —— */
+  .ritual{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
+    pointer-events:none;opacity:0;transition:opacity .34s ease;
+    background:radial-gradient(70% 48% at 50% 50%,rgba(201,168,106,.18),transparent 62%),
+      rgba(8,7,13,.86);backdrop-filter:blur(7px)}
+  .ritual.show{opacity:1}
+  .ritual-card{position:relative;width:min(620px,86vw);text-align:center;padding:48px 20px;
+    transform:scale(.96);opacity:.2;transition:transform .48s cubic-bezier(.2,.78,.22,1),opacity .48s ease}
+  .ritual.show .ritual-card{transform:none;opacity:1}
+  .ritual-card::before,.ritual-card::after{content:"";position:absolute;left:50%;width:min(420px,70vw);height:1px;
+    transform:translateX(-50%);background:linear-gradient(90deg,transparent,var(--brass),transparent)}
+  .ritual-card::before{top:18px}.ritual-card::after{bottom:18px}
+  .ritual-kicker{font-size:.72rem;letter-spacing:.34em;text-transform:uppercase;color:var(--brass);margin-bottom:18px}
+  .ritual-title{font-size:clamp(1.55rem,5vw,2.55rem);line-height:1.28;font-weight:700;color:#f4efe2;
+    text-shadow:0 0 34px rgba(201,168,106,.28),0 2px 20px #000}
+  .ritual-sub{margin-top:14px;color:var(--muted);font-size:.98rem;line-height:1.75}
+  .ritual-sigil{width:70px;height:70px;margin:0 auto 22px;border-radius:50%;
+    border:1px solid color-mix(in srgb,var(--brass) 68%,transparent);
+    box-shadow:0 0 34px -8px var(--brass),inset 0 0 24px rgba(201,168,106,.12);
+    animation:sigilPulse 1.6s ease-in-out infinite}
+  @keyframes sigilPulse{0%,100%{transform:scale(.96);opacity:.62}50%{transform:scale(1.04);opacity:1}}
 </style>
 </head>
 <body>
 <audio id="bgm" loop preload="auto" src="/music/Trent-Reznor-_-Atticus-Ross-Just-Us-_From-_Soul__Score_.mp3"></audio>
 <button id="bgm-toggle" aria-label="背景音乐开关" aria-pressed="false" title="背景音乐 · 开 / 关"><span class="eq"><i></i><i></i><i></i><i></i></span></button>
+<div class="ritual" id="ritual" aria-hidden="true">
+  <div class="ritual-card">
+    <div class="ritual-sigil"></div>
+    <p class="ritual-kicker" id="ritual-kicker">INNER CREW</p>
+    <div class="ritual-title" id="ritual-title">——</div>
+    <p class="ritual-sub" id="ritual-sub"></p>
+  </div>
+</div>
 <main class="wrap">
 
   <!-- 0 封面 -->
@@ -523,6 +594,7 @@
     <p class="eyebrow">入场名单</p>
     <p class="roster-lead">接下来，你内心的这六个声音<br>将坐到同一张桌子前——</p>
     <p class="roster-lede">先一张张翻过去，认认他们的脸。</p>
+    <p class="roster-hint">点击当前卡牌可翻面查看画像；手机端可左右滑动切换。</p>
     <div class="deck" id="deck"></div>
     <p class="deck-caption" id="deck-caption">——</p>
     <div class="deck-nav">
@@ -542,8 +614,6 @@
       <div class="bar"><div class="fill" id="bal-fill" style="width:50%"></div></div>
       <div class="labels"><span class="la" id="bal-a">——</span><span class="lb" id="bal-b">——</span></div>
     </div>
-    <div id="speeches"></div>
-    <div class="thinking" id="thinking" style="display:none"><span></span><span></span><span></span> 脑内还在吵……</div>
     <div id="continue-zone" class="continue-zone" style="display:none">
       <h2>你的心里有答案了吗？</h2>
       <p id="continue-hint">如果已经有了，就由你来裁断；如果还没有，让他们换个角度再吵一轮。</p>
@@ -562,7 +632,10 @@
       <label for="vnote">想补充一句吗？（可选，留空也能提交）</label>
       <textarea id="vnote" rows="2" autocomplete="off" placeholder="例如：听野心家的，但先存够六个月生活费"></textarea>
       <button class="go" id="verdict-go" disabled>生成决策建议书</button>
+      <button class="verdict-back" id="verdict-back" type="button">我还想再听一轮</button>
     </div>
+    <div class="thinking" id="thinking" style="display:none"><span></span><span></span><span></span> 脑内还在吵……</div>
+    <div id="speeches"></div>
     <p class="err" id="meeting-err"></p>
   </section>
 
@@ -578,7 +651,8 @@
       <p class="dissent" id="r-dissent"></p>
       <p class="hint" style="margin-top:20px">内心的会，永远值得再开一次。 · Inner Crew</p>
     </div>
-    <button class="go" id="export-card" style="margin-top:16px">导出会议纪要 PNG</button>
+    <button class="go" id="export-card" style="margin-top:16px">复制会议纪要 PNG</button>
+    <button class="go" id="restart-topic" style="margin-top:16px">再问其他问题</button>
   </section>
 
 </main>
@@ -586,22 +660,24 @@
 <script src="/vendor/html2canvas.min.js"></script>
 <script>
 const PERSONA = {
-  ambition:{n:'野心家',v:'--ambition',f:'',role:'脑内的征服者'},
-  guardian:{n:'守护者',v:'--guardian',f:'',role:'风险清单的化身'},
-  empath:{n:'共情者',v:'--empath',f:'',role:'替每个人感受的那根神经'},
-  selfcore:{n:'本我',v:'--selfcore',f:'',role:'只问你真正想要什么'},
-  logician:{n:'计算师',v:'--logician',f:'mono',role:'把一切折算成账'},
-  dreamer:{n:'造梦师',v:'--dreamer',f:'italic',role:'用十年后的画面说话'},
+  ambition:{n:'野心家',v:'--ambition',f:'',role:'脑内的征服者',desc:'它替你盯着机会、胜负和更大的可能，讨厌把人生过成“差不多”。',gift:'推动你夺取本可拥有的东西',watch:'它会盯住：机会窗口、成长速度、你是否在低估自己。',trap:'它可能误导你：把“不甘心”错认成真正想要。'},
+  guardian:{n:'守护者',v:'--guardian',f:'',role:'风险清单的化身',desc:'它记得代价、退路和最坏情况，负责在冲动前把警报拉响。',gift:'替你守住不能轻易丢掉的东西',watch:'它会盯住：现金流、关系损耗、失败后有没有退路。',trap:'它可能误导你：把安全感包装成理性。'},
+  empath:{n:'共情者',v:'--empath',f:'',role:'替每个人感受的那根神经',desc:'它会把决定落到具体的人身上，提醒你别把关系和信任碾过去。',gift:'让你的选择仍然保有人味',watch:'它会盯住：谁会受影响、谁被忽略、承诺有没有被兑现。',trap:'它可能误导你：把别人的情绪全背到自己身上。'},
+  selfcore:{n:'本我',v:'--selfcore',f:'',role:'只问你真正想要什么',desc:'它对“应该”过敏，专门戳破漂亮借口，把赤裸的愿望端上桌。',gift:'帮你承认那个不太体面的真心',watch:'它会盯住：你真正想要什么、哪些理由只是借口。',trap:'它可能误导你：把诚实变成不顾后果的任性。'},
+  logician:{n:'计算师',v:'--logician',f:'mono',role:'把一切折算成账',desc:'它把情绪翻译成成本、收益和概率，逼你面对现实里的筹码。',gift:'让决定经得起现实盘问',watch:'它会盯住：资源、概率、沉没成本和下一步可验证动作。',trap:'它可能误导你：只计算能被写进表格的东西。'},
+  dreamer:{n:'造梦师',v:'--dreamer',f:'italic',role:'用十年后的画面说话',desc:'它不满足于眼前的安全感，负责把远处值得追的画面点亮。',gift:'提醒你别把人生只算到今天',watch:'它会盯住：长期画面、意义感、你愿意为哪种未来吃苦。',trap:'它可能误导你：用漂亮远景跳过眼前代价。'},
 };
 let ORDER = [];
 const TRIAL_NUMS = ['一','二','三','四','五','六','七','八','九'];
 const state = {topic:'',assets:'',desire:'',scores:{},weights:{},choices:[],cards:[],likes:[],dislikes:[],transcript:[]};
 let NODES={}, nodeIdx=0, duelists=[], duelStmts={}, verdictPick=null, meetingRound=1;
 const ROUND_LABEL={2:'第三幕 · 盲点交锋',3:'第四幕 · 底线交换'};
+let meetingSides={a:'方案 A',b:'方案 B'};
 
 const $=id=>document.getElementById(id);
 const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0);};
 const pmeta=p=>PERSONA[p]||{n:p,v:'--brass',f:''};
+const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 
 async function postJSON(url,body){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json();}
 async function streamSSE(url,body,onEvent){
@@ -712,8 +788,12 @@ async function goCards(){
   const stage=$('card-stage');stage.innerHTML='';
   r.cards.forEach((c,i)=>{
     const wrap=document.createElement('div');wrap.className='card-stage';
-    wrap.innerHTML=`<div class="card"><div class="face back">INNER CREW</div>
-      <div class="face front"><div class="ctitle">${c.title}</div><div class="ctext">${c.text}</div></div></div>`;
+    wrap.innerHTML=`<div class="card"><div class="face back">
+        <div class="card-reason"><span class="label">CARD ORIGIN</span>${esc(c.reason||'获取理由：这张卡来自你在试炼中的整体倾向。')}</div>
+        <span class="card-hint">点击回正面</span>
+      </div>
+      <div class="face front"><div class="ctitle">${esc(c.title)}</div><div class="ctext">${esc(c.text)}</div><span class="card-hint">点击看获取理由</span></div></div>`;
+    wrap.querySelector('.card').onclick=()=>wrap.querySelector('.card').classList.toggle('flipped');
     stage.appendChild(wrap);
     setTimeout(()=>wrap.querySelector('.card').classList.add('flipped'),400+i*500);
   });
@@ -749,13 +829,55 @@ $('ask-next').onclick=()=>{
 /* —— 阵容预演:卡牌堆叠轮播 —— */
 // 卡面已自带名字 + 标语,这里只补一句口吻作情感锚点(对立轴相邻,暗示等会儿谁对谁)
 const ROSTER=['ambition','guardian','dreamer','logician','empath','selfcore'];
-let DECK=[], deckIdx=0, deckReady=false;
+let DECK=[], deckIdx=0, deckReady=false, deckFlipped=new Set();
+function personaScore(pid){
+  return (state.scores&&state.scores[pid]||0)+(state.weights&&state.weights[pid]||0);
+}
+function matchStars(pid){
+  const vals=ROSTER.map(personaScore), min=Math.min(...vals), max=Math.max(...vals), v=personaScore(pid);
+  const stars=max===min ? 3 : Math.max(1,Math.min(5,Math.round(1+(v-min)/(max-min)*4)));
+  return stars;
+}
+function starHTML(n){
+  let s='';
+  for(let i=1;i<=5;i++) s+=i<=n?'★':`<span class="off">★</span>`;
+  return s;
+}
+function matchNote(pid){
+  const n=matchStars(pid), score=personaScore(pid);
+  if(n>=5)return `强烈入场：你刚才的选择多次把它推到桌前。`;
+  if(n>=4)return `明显在场：它不是唯一答案，但声音已经很近。`;
+  if(n>=3)return `中等共振：它会参与争论，但未必掌控全局。`;
+  return score<=0?'低声旁听：这一次你暂时没有太靠近它。':'轻微共振：它会补上一句你可能忽略的话。';
+}
 function buildDeck(){
   const stage=$('deck'); stage.innerHTML=''; DECK=[];
   ROSTER.forEach((key,i)=>{
-    const el=document.createElement('div'); el.className='deck-card';
-    el.innerHTML=`<img src="/card/${key}.jpg" alt="${pmeta(key).n}" loading="eager">`;
-    el.onclick=()=>{ if(i!==deckIdx){ deckIdx=i; layoutDeck(); } };
+    const m=pmeta(key), stars=matchStars(key);
+    const el=document.createElement('div'); el.className='deck-card'; el.dataset.persona=key;
+    el.style.setProperty('--c',`var(${m.v})`);
+    el.innerHTML=`<div class="deck-inner">
+      <div class="deck-face front"><img src="/card/${key}.jpg" alt="${m.n}" loading="eager"><span class="deck-tap">点击翻面</span></div>
+      <div class="deck-face back">
+        <p class="deck-back-kicker">INNER VOICE</p>
+        <div class="deck-back-title">${m.n}</div>
+        <p class="deck-back-role">${m.role}</p>
+        <p class="deck-back-desc">${m.desc}</p>
+        <p class="deck-back-desc">${m.watch}</p>
+        <p class="deck-back-desc">${m.trap}</p>
+        <div class="deck-back-row">
+          <span class="deck-back-label">与你的匹配程度</span>
+          <div class="match-stars" aria-label="${stars} 星">${starHTML(stars)}</div>
+          <p class="deck-back-note">${matchNote(key)}<br>${m.gift}</p>
+        </div>
+      </div>
+    </div>`;
+    el.onclick=()=>{
+      if(deckDragging)return;
+      if(i!==deckIdx){ deckIdx=i; layoutDeck(); return; }
+      if(deckFlipped.has(key))deckFlipped.delete(key); else deckFlipped.add(key);
+      layoutDeck();
+    };
     stage.appendChild(el); DECK.push(el);
   });
   const dots=$('deck-dots'); dots.innerHTML='';
@@ -780,30 +902,128 @@ function layoutDeck(){
     el.style.filter = a===0?'none':`brightness(${0.74-a*0.08})`;
     el.style.cursor = a===0?'default':'pointer';
     el.style.pointerEvents = a>=3?'none':'auto';
+    const key=ROSTER[i];
+    el.classList.toggle('is-flipped',deckFlipped.has(key));
   });
   const key=ROSTER[deckIdx], m=pmeta(key), cap=$('deck-caption');
-  cap.textContent=m.role; cap.style.color=`var(${m.v})`;
+  cap.textContent=deckFlipped.has(key)?'再次点击，回到它的正面。':m.role;
+  cap.style.color=`var(${m.v})`;
   [...$('deck-dots').children].forEach((d,i)=>d.classList.toggle('on',i===deckIdx));
 }
 const deckStep=dir=>{ deckIdx=(deckIdx+dir+ROSTER.length)%ROSTER.length; layoutDeck(); };
 $('deck-prev').onclick=()=>deckStep(-1);
 $('deck-next').onclick=()=>deckStep(1);
 // 触摸/拖拽横滑
+let deckDragging=false;
 (function(){
   const stage=$('deck'); let x0=null;
-  stage.addEventListener('pointerdown',e=>{ x0=e.clientX; });
+  stage.addEventListener('pointerdown',e=>{ x0=e.clientX; deckDragging=false; });
+  stage.addEventListener('pointermove',e=>{ if(x0!==null&&Math.abs(e.clientX-x0)>12) deckDragging=true; });
   stage.addEventListener('pointerup',e=>{ if(x0===null)return; const dx=e.clientX-x0; x0=null;
-    if(Math.abs(dx)>40) deckStep(dx<0?1:-1); });
-  stage.addEventListener('pointercancel',()=>{ x0=null; });
+    if(Math.abs(dx)>40) deckStep(dx<0?1:-1);
+    setTimeout(()=>{deckDragging=false;},0);
+  });
+  stage.addEventListener('pointercancel',()=>{ x0=null; deckDragging=false; });
 })();
 function goRoster(){
   show('s-roster');
-  if(!deckReady) buildDeck();
+  deckFlipped.clear();
+  buildDeck();
   deckIdx=0; layoutDeck();
 }
 $('roster-go').onclick=()=>goMeeting();
 
 /* —— 会议 —— */
+function cleanOptionText(s){
+  return (s||'').replace(/^(要不要|该不该|应不应该|是否|能不能|值不值得)/,'')
+    .replace(/[？?。！!，,；;：:]+$/,'').trim();
+}
+function inferTopicOptions(){
+  const raw=(state.topic||'').trim();
+  const explicit=raw.split(/\s*(?:还是|或者|或是|or|OR|\/|／|vs|VS)\s*/).map(cleanOptionText).filter(Boolean);
+  if(explicit.length>=2)return {action:explicit[0],caution:explicit[1]};
+  let action=cleanOptionText(raw);
+  action=action.replace(/^把/,'').replace(/^为了/,'');
+  if(action.length>16) action=action.slice(0,16)+'…';
+  let caution='维持现状';
+  if(/裸辞|辞职|离职|工作/.test(raw))caution='继续工作';
+  else if(/创业|副业|项目/.test(raw))caution='保持稳定';
+  else if(/读研|研究生/.test(raw))caution='先进入职场';
+  else if(/外地|远方|城市|offer/.test(raw))caution='留在熟悉生活';
+  else if(/分手|关系|修复/.test(raw))caution='继续修复关系';
+  else if(/换|赛道|止损/.test(raw))caution='继续原方向';
+  return {action:action||'改变现状',caution};
+}
+function labelForPersona(pid){
+  const opts=inferTopicOptions();
+  return ['ambition','selfcore','dreamer'].includes(pid)?opts.action:opts.caution;
+}
+function prepareMeetingSides(){
+  if(duelists.length!==2){ meetingSides={a:'方案 A',b:'方案 B'}; return meetingSides; }
+  const a=labelForPersona(duelists[0]), b=labelForPersona(duelists[1]);
+  meetingSides={a:a||pmeta(duelists[0]).n+'的方案',b:b||pmeta(duelists[1]).n+'的方案'};
+  if(meetingSides.a===meetingSides.b){
+    meetingSides={a:pmeta(duelists[0]).n+'的方案',b:pmeta(duelists[1]).n+'的方案'};
+  }
+  return meetingSides;
+}
+function stanceLabelText(ev){
+  if(ev.stance==='third')return '第三条路';
+  if(ev.stance==='a')return '支持“'+(meetingSides.a==='方案 A'&&ev.persona?labelForPersona(ev.persona):meetingSides.a)+'”';
+  if(ev.stance==='b')return '支持“'+(meetingSides.b==='方案 B'&&ev.persona?labelForPersona(ev.persona):meetingSides.b)+'”';
+  return '';
+}
+function applyArenaAgenda(){
+  const a=$('arena'); if(!arenaOn||!a||duelists.length!==2)return;
+  prepareMeetingSides();
+  const topic=(state.topic||'这件事').trim();
+  let agenda=a.querySelector('.arena-agenda');
+  if(!agenda){agenda=document.createElement('div'); agenda.className='arena-agenda'; a.appendChild(agenda);}
+  agenda.textContent='议题 · '+topic;
+  let left=a.querySelector('.camp-heading.left'), right=a.querySelector('.camp-heading.right');
+  if(!left){left=document.createElement('div'); left.className='camp-heading left'; a.appendChild(left);}
+  if(!right){right=document.createElement('div'); right.className='camp-heading right'; a.appendChild(right);}
+  left.style.setProperty('--za',`var(${pmeta(duelists[0]).v})`);
+  right.style.setProperty('--zb',`var(${pmeta(duelists[1]).v})`);
+  left.innerHTML='<span class="tag"></span><span class="txt"></span>';
+  right.innerHTML='<span class="tag"></span><span class="txt"></span>';
+  left.querySelector('.tag').textContent=pmeta(duelists[0]).n+'队';
+  right.querySelector('.tag').textContent=pmeta(duelists[1]).n+'队';
+  left.querySelector('.txt').textContent=meetingSides.a;
+  right.querySelector('.txt').textContent=meetingSides.b;
+}
+let audioCtx=null;
+function playRitualTone(kind='open'){
+  const Ctx=window.AudioContext||window.webkitAudioContext;
+  if(!Ctx)return;
+  try{
+    audioCtx=audioCtx||new Ctx();
+    if(audioCtx.state==='suspended')audioCtx.resume();
+    const now=audioCtx.currentTime, gain=audioCtx.createGain();
+    gain.connect(audioCtx.destination);
+    gain.gain.setValueAtTime(0.0001,now);
+    gain.gain.exponentialRampToValueAtTime(0.12,now+0.04);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+1.15);
+    const freqs=kind==='answer'?[196,293.66,392]:[146.83,220,329.63];
+    freqs.forEach((f,i)=>{
+      const osc=audioCtx.createOscillator();
+      osc.type=i===0?'sine':'triangle';
+      osc.frequency.setValueAtTime(f,now+i*.09);
+      osc.connect(gain); osc.start(now+i*.09); osc.stop(now+1.18+i*.04);
+    });
+  }catch(e){}
+}
+async function showRitual(kicker,title,sub,kind='open'){
+  const r=$('ritual');
+  $('ritual-kicker').textContent=kicker;
+  $('ritual-title').innerHTML=title;
+  $('ritual-sub').textContent=sub;
+  playRitualTone(kind);
+  r.classList.add('show');
+  await sleep(window.matchMedia('(prefers-reduced-motion: reduce)').matches?700:2100);
+  r.classList.remove('show');
+  await sleep(360);
+}
 function addSpeech(ev,stream){
   const m=pmeta(ev.persona),el=document.createElement('div');
   el.className='speech';
@@ -814,25 +1034,14 @@ function addSpeech(ev,stream){
   if(!stream && (ev.stance==='a'||ev.stance==='b') && duelists.length===2)            // 队长色虚线半框分组
     el.style.setProperty('--camp',`var(${pmeta(duelists[ev.stance==='a'?0:1]).v})`);
   if(ev.query && !turningFired){ turningFired=true; el.classList.add('turning'); }   // E 实锤气泡高亮(首次带检索时)
-  // 立场标签只在选边阶段显示,且把 A/B 换成具体人格名;对峙阶段发言者本身就是那一极,不显示
-  let stanceTxt='';
-  if(!stream && duelists.length===2){
-    stanceTxt=ev.stance==='a'?'支持'+pmeta(duelists[0]).n
-            :ev.stance==='b'?'支持'+pmeta(duelists[1]).n
-            :ev.stance==='third'?'第三条路':'';
-  }
-  el.innerHTML=`<div class="head"><span class="who">${ev.name||m.n}</span>
-    ${stanceTxt?`<span class="stance">${stanceTxt}</span>`:''}
-    ${ev.query?`<span class="searched">🔍 检索「${ev.query}」</span>`:''}
-    <span class="react"><button class="like">👍 有道理</button><button class="dislike">👎 不认同</button></span></div><div class="body"></div>`;
-  const k=ev.persona, uid='u'+state.transcript.length;
-  const likeBtn=el.querySelector('.like'), disBtn=el.querySelector('.dislike');
-  const rm=arr=>{const i=arr.findIndex(x=>x[0]===k); if(i>=0)arr.splice(i,1);};
-  likeBtn.onclick=()=>{const on=likeBtn.classList.toggle('on'); disBtn.classList.remove('on');
-    rm(state.likes); rm(state.dislikes); if(on)state.likes.push([k,uid]);};
-  disBtn.onclick=()=>{const on=disBtn.classList.toggle('on'); likeBtn.classList.remove('on');
-    rm(state.likes); rm(state.dislikes); if(on)state.dislikes.push([k,uid]);};
-  $('speeches').appendChild(el);
+  const stanceTxt=stanceLabelText(ev);
+  const captainTxt=stream?'队长':'';
+  el.innerHTML=`<div class="head"><span class="who">${esc(ev.name||m.n)}</span>
+    ${captainTxt?`<span class="badge">${captainTxt}</span>`:''}
+    ${stanceTxt?`<span class="stance">${esc(stanceTxt)}</span>`:''}
+    ${ev.query?`<span class="searched">🔍 检索「${esc(ev.query)}」</span>`:''}
+    </div><div class="body"></div>`;
+  $('speeches').prepend(el);
   return el.querySelector('.body');
 }
 function updateBalance(){
@@ -971,16 +1180,14 @@ function arenaTension(){                                   // D 开场钩子(非
   setTimeout(()=>{cap.classList.remove('show'); setTimeout(()=>cap.remove(),700);},3800);
 }
 function focusStanceLabel(stance){
-  if(duelists.length!==2)return '';
-  if(stance==='a')return ' · 支持'+pmeta(duelists[0]).n;
-  if(stance==='b')return ' · 支持'+pmeta(duelists[1]).n;
-  if(stance==='third')return ' · 第三条路';
-  return '';
+  const label=stanceLabelText({stance,persona:''});
+  return label?' · '+label:'';
 }
 function arenaCutinShow(ev,showStance){   // 发言切入幕:发言者放大占满画框 + 名牌 + 底部对话框(返回对话框文字节点)
   if(!arenaOn)return null;
   const a=$('arena'); if(!a)return null;
   const m=pmeta(ev.persona);
+  const stanceText=showStance?stanceLabelText(ev):'';
   let c=a.querySelector('.cutin');
   if(!c){ c=document.createElement('div'); a.appendChild(c); }
   const right = ev.stance==='b';                         // 支持A→靠左, 支持B→靠右(镜像), 第三条路→靠左
@@ -988,8 +1195,8 @@ function arenaCutinShow(ev,showStance){   // 发言切入幕:发言者放大占�
   c.style.setProperty('--c',`var(${m.v})`);
   c.innerHTML=
     `<img class="cutin-char" src="/abstract/${ev.persona}.png" alt="">`+
-    (ev.query?`<span class="cutin-q">🔍 检索「${ev.query}」</span>`:'')+
-    `<span class="cutin-name">${ev.name||m.n}${showStance?focusStanceLabel(ev.stance):''}</span>`+
+    (ev.query?`<span class="cutin-q">🔍 检索「${esc(ev.query)}」</span>`:'')+
+    `<span class="cutin-name">${esc(ev.name||m.n)}${stanceText?' · '+esc(stanceText):''}</span>`+
     `<div class="cutin-box"><span class="cutin-text"></span></div>`;
   void c.offsetWidth; c.classList.add('show');   // 重启入场动画(className 重置已去掉 show)
   return c.querySelector('.cutin-text');
@@ -1038,6 +1245,13 @@ function arenaVerdict(pick){                              // B 拍板定格:veil
   requestAnimationFrame(()=>veil.classList.add('show'));
   arenaCaption(pick);
 }
+function arenaClearVerdict(){
+  if(!arenaOn)return;
+  const a=$('arena'); if(!a)return;
+  const veil=a.querySelector('.veil'); if(veil)veil.classList.remove('show');
+  const cap=a.querySelector('.verdict-caption:not(.tension)'); if(cap)cap.classList.remove('show');
+  Object.values(fighters).forEach(f=>f.classList.remove('affirm','spotlight','dim'));
+}
 function arenaCaption(pick){                              // 中央浮出半动态金句
   const a=$('arena'); if(!a)return;
   let cap=a.querySelector('.verdict-caption'); if(!cap){cap=document.createElement('div'); cap.className='verdict-caption'; a.appendChild(cap);}
@@ -1059,10 +1273,12 @@ function arenaSit(){                                      // 落座:全员回中
     f.classList.add('in'); f.style.left=(18+i*12.8)+'%'; });
 }
 function setMomentumColors(){
-  $('bal-a').textContent=pmeta(duelists[0]).n+'阵营';
-  $('bal-b').textContent=pmeta(duelists[1]).n+'阵营';
+  prepareMeetingSides();
+  $('bal-a').textContent=meetingSides.a;
+  $('bal-b').textContent=meetingSides.b;
   $('balance').style.display = arenaOn ? 'none' : 'block';   // 有舞台用舞台声势条,否则退回天平
   if(arenaOn){
+    applyArenaAgenda();
     const fa=$('fillm-a'),fb=$('fillm-b');
     if(fa)fa.style.background=`var(${pmeta(duelists[0]).v})`;
     if(fb)fb.style.background=`var(${pmeta(duelists[1]).v})`;
@@ -1070,8 +1286,8 @@ function setMomentumColors(){
     if(z){
       z.style.setProperty('--za',`var(${pmeta(duelists[0]).v})`);
       z.style.setProperty('--zb',`var(${pmeta(duelists[1]).v})`);
-      z.querySelector('.za .zlabel').textContent=pmeta(duelists[0]).n+'阵营';
-      z.querySelector('.zb .zlabel').textContent=pmeta(duelists[1]).n+'阵营';
+      z.querySelector('.za .zlabel').textContent=pmeta(duelists[0]).n+'队';
+      z.querySelector('.zb .zlabel').textContent=pmeta(duelists[1]).n+'队';
       z.classList.add('show');
     }
   }
@@ -1081,12 +1297,17 @@ function showContinueZone(){
   $('thinking').style.display='none';
   $('continue-zone').style.display='block';
   $('verdict-zone').style.display='none';
-  if(meetingRound>=2){
+  if(meetingRound>=3){
+    $('continue-hint').textContent='三轮已经结束。你仍然可以回看上面的声音，然后由你来裁断。';
+    $('continue-no').style.display='none';
+  }else if(meetingRound>=2){
     $('continue-hint').textContent='如果已经清楚，就由你裁断；如果还没有，再听最后一轮底线。';
     $('continue-no').textContent='还没有，听最后一轮底线';
+    $('continue-no').style.display='';
   }else{
     $('continue-hint').textContent='如果已经有了，就由你来裁断；如果还没有，让他们换个角度再吵一轮。';
     $('continue-no').textContent='还没有，再听一轮盲点';
+    $('continue-no').style.display='';
   }
 }
 function showVerdictZone(){
@@ -1094,8 +1315,14 @@ function showVerdictZone(){
   $('thinking').style.display='none';
   $('continue-zone').style.display='none';
   $('act-label').textContent='终幕 · 裁决';
-  $('vb-a').textContent='听 '+pmeta(duelists[0]).n+' 的';
-  $('vb-b').textContent='听 '+pmeta(duelists[1]).n+' 的';
+  prepareMeetingSides();
+  $('vb-a').textContent='选择“'+meetingSides.a+'”';
+  $('vb-b').textContent='选择“'+meetingSides.b+'”';
+  verdictPick=null;
+  $('verdict-go').disabled=true;
+  $('verdict-go').textContent='生成决策建议书';
+  document.querySelectorAll('.vbtn').forEach(x=>x.classList.remove('sel'));
+  $('verdict-back').textContent=meetingRound>=3?'返回回看':'我还想再听一轮';
   $('verdict-zone').style.display='block';
 }
 async function runExtraRound(roundNo){
@@ -1123,18 +1350,20 @@ async function goMeeting(){
   try{
     if(new URLSearchParams(location.search).has('replay')){ await replayMeeting(); return; }  // R 回放硬兜底
     show('s-meeting');$('speeches').innerHTML='';$('act-label').textContent='第一幕 · 对峙';
-    $('thinking').style.display='block';
+    $('thinking').style.display='none';
     $('continue-zone').style.display='none'; $('verdict-zone').style.display='none';
     meetingRound=1; state.transcript=[]; state.likes=[]; state.dislikes=[];
     duelStmts={};
     arenaLineup();              // 开场:六小人蒙面在舞台中央列队
+    await showRitual('第一幕', '阵线开始成形', '与你最相抵的两股声音，将先走到桌子的两端。', 'open');
+    $('thinking').style.display='block';
     // 第一幕
     let bodies={},duelSeq=[],cutinBox=null;
     await streamSSE('/api/meeting/duel',{state},ev=>{
       if(ev.event==='start'){ // 串行:首位是 A(靠左)、次位是 B(靠右);stance 在 end 才到,这里按顺序先定方向
         const stance=duelSeq.length===0?'a':'b'; duelSeq.push(ev.persona);
         arenaSendCaptain(ev.persona,stance);   // 队长走向各自一侧、就位揭面
-        cutinBox=arenaCutinShow({...ev,stance},false);   // 切入幕登场(对峙不显立场标签,发言者本身就是那一极)
+        cutinBox=arenaCutinShow({...ev,stance},true);   // 切入幕登场,队长先划出阵线
         bodies[ev.persona]=addSpeech({...ev,stance},true);}
       else if(ev.delta&&bodies[ev.persona]){
         if(cutinBox)cutinBox.textContent+=ev.delta;        // 流式进切入幕对话框
@@ -1148,8 +1377,11 @@ async function goMeeting(){
     arenaCutinHide(); await sleep(320);   // 收起切入幕,露出双阵营列队
     setMomentumColors();
     arenaTension();   // D 开场钩子:两股力量都是你自己(非格斗,趁 debate 首次 LLM 等待时展示)
+    $('thinking').style.display='none';
+    await showRitual('第二幕', '其余声音入席', '现在，它们必须选择靠近哪一边，或提出第三条路。', 'answer');
     // 第二幕:未发言的配角先进"思考态",填满 debate 的 LLM 死等
     $('act-label').textContent='第二幕 · 选边';
+    $('thinking').style.display='block';
     SPRITE_IDS.filter(p=>!duelists.includes(p)).forEach(p=>arenaThinking(p,true));   // W
     let focusChain=Promise.resolve();
     await streamSSE('/api/meeting/debate',{state,duelists,statements:duelStmts},ev=>{
@@ -1166,12 +1398,13 @@ async function replayMeeting(){                              // R 预录回放:�
   const R=await fetch('/replay.json').then(r=>r.json()).catch(()=>null);
   if(!R||!R.duel){ $('meeting-err').textContent='回放数据缺失,请改走真实路径。'; return; }
   arenaLineup(); duelists=R.duelists; state.transcript=[];
+  await showRitual('第一幕', '阵线开始成形', '与你最相抵的两股声音，将先走到桌子的两端。', 'open');
   await sleep(800);
   for(const d of R.duel){                                    // 第一幕:两队长就位揭面 + 切入幕打字陈词
     arenaSendCaptain(d.persona,d.stance);
     const body=addSpeech({persona:d.persona,name:pmeta(d.persona).n,stance:d.stance},true);
     arenaSpeak(d.persona,true);
-    const box=arenaCutinShow({persona:d.persona,name:pmeta(d.persona).n,stance:d.stance},false);
+    const box=arenaCutinShow({persona:d.persona,name:pmeta(d.persona).n,stance:d.stance},true);
     await typeOut(box||body, d.text);                        // 切入幕打字(降级打进气泡)
     if(box)body.textContent=d.text;                          // 气泡存档全文
     arenaSpeak(d.persona,false); arenaCutinHide();
@@ -1180,6 +1413,7 @@ async function replayMeeting(){                              // R 预录回放:�
   }
   setMomentumColors();
   arenaTension(); await sleep(1900);   // D 开场钩子,给它一个独立 beat
+  await showRitual('第二幕', '其余声音入席', '现在，它们必须选择靠近哪一边，或提出第三条路。', 'answer');
   $('act-label').textContent='第二幕 · 选边';
   SPRITE_IDS.filter(p=>!duelists.includes(p)).forEach(p=>arenaThinking(p,true));   // W 思考态
   for(const d of R.debate){                                  // 第二幕:逐个停止思考→焦点聚焦→停留→下沉
@@ -1192,6 +1426,7 @@ async function replayMeeting(){                              // R 预录回放:�
 }
 $('continue-yes').onclick=()=>showVerdictZone();
 $('continue-no').onclick=()=>runExtraRound(Math.min(3,meetingRound+1));
+$('verdict-back').onclick=()=>{ arenaClearVerdict(); showContinueZone(); };
 document.querySelectorAll('.vbtn').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.vbtn').forEach(x=>x.classList.remove('sel'));
   b.classList.add('sel');verdictPick=b.dataset.v;$('verdict-go').disabled=false;
@@ -1211,13 +1446,13 @@ $('verdict-go').onclick=async()=>{
 /* —— 建议书 —— */
 function renderReport(r){
   $('r-summary').textContent=r.verdict_summary||'';
-  $('r-steps').innerHTML=(r.action_steps||[]).map(s=>`<li>${s}</li>`).join('');
+  $('r-steps').innerHTML=(r.action_steps||[]).map(s=>`<li>${esc(s)}</li>`).join('');
   // 各方立场:按用户最终选择重排——选中侧靠前,未选侧下沉淡化(末尾仍只留一条异见)
   const pick=verdictPick, campOf={};
   (state.transcript||[]).forEach(e=>{const m=PERSONA[e.persona]; if(m)campOf[m.n]=e.stance;});
   const positions=r.persona_positions||[];
   const chosenOf=p=> pick==='synthesis' ? true : campOf[p.persona]===pick;
-  const li=(p,faded)=>`<li class="${faded?'faded':''}"><b style="color:var(${pmeta_byname(p.persona)})">${p.persona}</b>（${p.stance}）：${p.key_point}</li>`;
+  const li=(p,faded)=>`<li class="${faded?'faded':''}"><b style="color:var(${pmeta_byname(p.persona)})">${esc(p.persona)}</b>（${esc(p.stance)}）：${esc(p.key_point)}</li>`;
   const chosen=positions.filter(chosenOf), others=positions.filter(p=>!chosenOf(p));
   $('r-positions').innerHTML = chosen.map(p=>li(p,false)).join('')
     + (others.length && pick!=='synthesis' ? '<li class="pos-sep">另一侧的声音——你没有选，但它们没有消失</li>' : '')
@@ -1228,18 +1463,56 @@ function renderReport(r){
   show('s-report');
 }
 function pmeta_byname(name){for(const k in PERSONA)if(PERSONA[k].n===name)return PERSONA[k].v;return '--brass';}
-/* —— G 导出会议纪要 PNG(本地 html2canvas,失败则提示直接截屏——内容都在屏上,纯文字兜底) —— */
+/* —— G 导出会议纪要 PNG：优先复制到剪贴板，失败则下载兜底 —— */
 $('export-card').onclick=async()=>{
   const btn=$('export-card');
   if(typeof html2canvas!=='function'){ btn.textContent='请直接截屏本页保存'; return; }
-  btn.disabled=true; const orig=btn.textContent; btn.textContent='生成中…';
+  btn.disabled=true; const orig=btn.textContent; btn.textContent='正在生成 PNG…';
   try{
     const bg=getComputedStyle(document.body).backgroundColor||'#13111a';
     const canvas=await html2canvas($('report-card'),{backgroundColor:bg,scale:2,useCORS:true});
-    const a=document.createElement('a'); a.download='内心议会·会议纪要.png'; a.href=canvas.toDataURL('image/png'); a.click();
-    btn.textContent='已导出 ✓'; setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},1600);
-  }catch(e){ btn.textContent='导出失败,请直接截屏本页'; btn.disabled=false; }
+    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+    if(!blob)throw new Error('empty canvas');
+    if(navigator.clipboard && window.ClipboardItem){
+      await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+      btn.textContent='已复制，可直接粘贴 ✓';
+    }else{
+      downloadReportBlob(blob);
+      btn.textContent='已下载 PNG';
+    }
+    setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2200);
+  }catch(e){
+    try{
+      const bg=getComputedStyle(document.body).backgroundColor||'#13111a';
+      const canvas=await html2canvas($('report-card'),{backgroundColor:bg,scale:2,useCORS:true});
+      const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+      if(!blob)throw new Error('empty canvas');
+      downloadReportBlob(blob);
+      btn.textContent='剪贴板不可用，已下载 PNG';
+      setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2600);
+    }catch(err){
+      btn.textContent='导出失败，请直接截屏本页';
+      btn.disabled=false;
+    }
+  }
 };
+function downloadReportBlob(blob){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.download='内心议会-会议纪要.png'; a.href=url;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1200);
+}
+function resetForNewTopic(){
+  Object.assign(state,{topic:'',assets:'',desire:'',scores:{},weights:{},choices:[],cards:[],likes:[],dislikes:[],transcript:[]});
+  delete state._replayVerdict;
+  NODES={}; ORDER=[]; nodeIdx=0; duelists=[]; duelStmts={}; verdictPick=null; meetingRound=1;
+  ['topic','a-assets','a-desire','vnote'].forEach(id=>{const el=$(id); if(el)el.value='';});
+  ['topic-err','meeting-err'].forEach(id=>{const el=$(id); if(el)el.textContent='';});
+  $('speeches').innerHTML=''; $('focus').innerHTML='';
+  $('continue-zone').style.display='none'; $('verdict-zone').style.display='none';
+  show('s-intro');
+}
+$('restart-topic').onclick=resetForNewTopic;
 /* —— C 演示模式:?demo 预填议题 / ?replay 回放;导演条一键开会 —— */
 (function initDemo(){
   const q=new URLSearchParams(location.search);
