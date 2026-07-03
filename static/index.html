@@ -182,6 +182,11 @@
   .speech .searched{font-family:var(--mono);font-size:.68rem;color:var(--logician);
     background:color-mix(in srgb,var(--logician) 14%,transparent);border-radius:4px;padding:1px 7px;letter-spacing:-.01em}
   .speech .body{color:#e9e3d6;line-height:1.6}
+  .speech-section{margin:20px 0 12px}
+  .speech-section:first-child{margin-top:0}
+  .speech-section .live-round{margin:0 0 12px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    color:var(--brass);font-size:.76rem;letter-spacing:.18em;text-transform:uppercase}
+  .speech-list{display:flex;flex-direction:column}
 
   /* —— 2.0 像素对战舞台（上方 arena，下方沿用气泡 #speeches） —— */
   /* 画框加高，给切入幕台词留足空间 */
@@ -391,6 +396,7 @@
   .vbtn.back-choice:hover{border-color:var(--guardian)}
   .verdict-submit{width:calc((100% - 36px)/4);min-width:140px}
   .wide-go{min-width:240px}
+  #verdict-zone{margin-bottom:34px}
   .continue-zone{margin:26px 0 8px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
   .continue-zone h2{font-size:1.28rem;margin-bottom:4px}
   .continue-zone p{color:var(--muted);font-size:.94rem;margin-bottom:14px}
@@ -612,7 +618,7 @@
 
   <!-- 1.5 转场页 -->
   <section class="screen" id="s-prelude">
-    <p class="prelude-line">先走一趟试炼——<br>你会听见几个声音替你较劲；<br>走到最后，它们坐下来，<br>把这场没开成的会吵完。</p>
+    <p class="prelude-line">先走一趟试炼——<br>你会听见几个声音替你较劲；<br>走到最后，它们会坐到同一张桌前，<br>把真正的分歧说清楚。</p>
     <button class="go" id="prelude-go">推开第一道门</button>
   </section>
 
@@ -763,6 +769,10 @@ const TRIAL_NUMS = ['一','二','三','四','五','六','七','八','九'];
 const state = {topic:'',assets:'',desire:'',scores:{},weights:{},choices:[],cards:[],likes:[],dislikes:[],transcript:[]};
 let NODES={}, nodeIdx=0, duelists=[], duelStmts={}, verdictPick=null, meetingRound=1;
 const ROUND_LABEL={2:'第三幕 · 盲点交锋',3:'第四幕 · 底线交换'};
+const ROUND_RITUAL={
+  2:{kicker:'第三幕',title:'盲点交锋',sub:'剩余声音重新入席，开始指出彼此没有说完的部分。',kind:'answer'},
+  3:{kicker:'第四幕',title:'底线交换',sub:'最后一轮，它们会说出能妥协什么，以及不能退让什么。',kind:'answer'}
+};
 let meetingSides={a:'方案 A',b:'方案 B'};
 let lastReport=null;
 
@@ -1133,6 +1143,22 @@ async function showRitual(kicker,title,sub,kind='open'){
   r.classList.remove('show');
   await sleep(360);
 }
+function speechPhaseOf(ev,stream){
+  return ev.phase || (stream?'duel':'stance');
+}
+function ensureSpeechSection(ev,stream){
+  const round=ev.round||1, phase=speechPhaseOf(ev,stream);
+  const key=`${round}|${phase}`;
+  let section=$('speeches').querySelector(`[data-speech-section="${key}"]`);
+  if(!section){
+    section=document.createElement('div');
+    section.className='speech-section';
+    section.dataset.speechSection=key;
+    section.innerHTML=`<div class="live-round">${esc(phaseTitle({round,phase}))}</div><div class="speech-list"></div>`;
+    $('speeches').prepend(section);
+  }
+  return section.querySelector('.speech-list');
+}
 function addSpeech(ev,stream){
   const m=pmeta(ev.persona),el=document.createElement('div');
   el.className='speech';
@@ -1150,7 +1176,7 @@ function addSpeech(ev,stream){
     ${stanceTxt?`<span class="stance">${esc(stanceTxt)}</span>`:''}
     ${ev.query?`<span class="searched">🔍 检索「${esc(ev.query)}」</span>`:''}
     </div><div class="body"></div>`;
-  $('speeches').prepend(el);
+  ensureSpeechSection(ev,stream).prepend(el);
   return el.querySelector('.body');
 }
 function updateBalance(){
@@ -1463,7 +1489,7 @@ function showContinueZone(){
   $('continue-zone').style.display='block';
   $('verdict-zone').style.display='none';
   if(meetingRound>=3){
-    $('continue-hint').textContent='三轮已经结束。你仍然可以回看上面的声音，然后由你来裁断。';
+    $('continue-hint').textContent='内心声音们的三轮讨论已经结束。请你遵从自己的内心，做出最终的裁断。';
     $('continue-no').style.display='none';
   }else if(meetingRound>=2){
     $('continue-hint').textContent='如果已经清楚，就由你裁断；如果还没有，再听最后一轮底线。';
@@ -1498,6 +1524,8 @@ async function runExtraRound(roundNo){
   $('continue-zone').style.display='none';
   $('verdict-zone').style.display='none';
   $('act-label').textContent=ROUND_LABEL[roundNo]||`第${roundNo}轮 · 继续`;
+  const ritual=ROUND_RITUAL[roundNo];
+  if(ritual) await showRitual(ritual.kicker, ritual.title, ritual.sub, ritual.kind);
   $('thinking').style.display='block';
   let focusChain=Promise.resolve();
   await streamSSE('/api/meeting/round',{state,duelists,round:roundNo},ev=>{
