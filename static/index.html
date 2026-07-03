@@ -223,6 +223,8 @@
   .arena-agenda{position:absolute;left:50%;top:24px;transform:translateX(-50%);z-index:4;max-width:72%;
     text-align:center;color:#f2ebdc;font-size:.86rem;line-height:1.35;text-shadow:0 2px 12px #000,0 0 16px rgba(0,0,0,.8);
     letter-spacing:.04em;pointer-events:none}
+  .arena-help{position:absolute;right:14px;top:12px;z-index:5;color:var(--faint);font-size:.68rem;letter-spacing:.12em;
+    background:rgba(8,8,14,.46);border:1px solid rgba(231,224,208,.12);border-radius:20px;padding:2px 9px}
   .camp-heading{position:absolute;top:46px;z-index:4;max-width:34%;color:#f4efe2;font-size:.82rem;line-height:1.35;
     text-shadow:0 2px 12px #000,0 0 16px rgba(0,0,0,.82);pointer-events:none;opacity:.94}
   .camp-heading.left{left:4%;text-align:left;color:var(--za)}
@@ -233,7 +235,7 @@
     background:linear-gradient(180deg,color-mix(in srgb,#9fb4ff 7%,transparent),rgba(0,0,0,.45));
     border-top:1px solid color-mix(in srgb,#9fb4ff 18%,transparent)}
   #arena::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;box-shadow:inset 0 0 64px 14px rgba(0,0,0,.55)}
-  .fighter{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:2;
+  .fighter{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:2;cursor:pointer;
     display:flex;align-items:flex-end;opacity:0;transition:left .9s cubic-bezier(.5,0,.3,1),opacity .5s ease}
   .fighter.in{opacity:1}
   .fighter img{height:108px;width:auto;max-width:118px;display:block;  /* 缩小 + 按身高统一 */
@@ -336,7 +338,7 @@
   .cutin.side-right{background:
       radial-gradient(70% 88% at 70% 54%,color-mix(in srgb,var(--c) 40%,transparent),transparent 70%),
       linear-gradient(180deg,rgba(5,6,14,.96) 0%,rgba(5,6,14,.9) 42%,rgba(5,6,14,.98) 100%)}
-  .cutin.show{opacity:1;animation:cutinshake .3s ease-out}
+  .cutin.show{opacity:1;animation:cutinshake .3s ease-out;pointer-events:auto;cursor:pointer}
   @keyframes cutinshake{0%,100%{transform:translateX(0)}18%{transform:translateX(-5px)}38%{transform:translateX(5px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
   /* 漫画式集中线(从角色侧聚拢的冲击线) */
   .cutin::before{content:"";position:absolute;inset:-30%;z-index:0;opacity:.42;mix-blend-mode:screen;pointer-events:none;
@@ -409,6 +411,10 @@
   .report li{padding-left:18px;position:relative;margin-bottom:7px}
   .report li::before{content:"—";position:absolute;left:0;color:var(--faint)}
   .report li.faded{opacity:.42}
+  .report li.pos-group{padding-left:0;margin:18px 0 10px;padding-top:8px;padding-bottom:8px;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    color:var(--brass);font-size:.76rem;letter-spacing:.18em;text-transform:uppercase}
+  .report li.pos-group::before{content:""}
   .report li.pos-sep{list-style:none;padding-left:0;opacity:.6;font-size:.82rem;color:var(--faint);font-style:italic;margin:16px 0 6px}
   .report li.pos-sep::before{content:""}
   .report .dissent{font-style:italic;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;margin-top:8px}
@@ -454,6 +460,10 @@
   .detail-report ul{list-style:none}
   .detail-report li{position:relative;padding-left:18px;margin-bottom:8px;line-height:1.7}
   .detail-report li::before{content:"—";position:absolute;left:0;color:var(--faint)}
+  .detail-report li.pos-group{padding-left:0;margin:18px 0 10px;padding-top:8px;padding-bottom:8px;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    color:var(--brass);font-size:.76rem;letter-spacing:.18em;text-transform:uppercase}
+  .detail-report li.pos-group::before{content:""}
   .detail-report .dissent{font-style:italic;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:16px}
   @media (max-width:560px){
     .qa-grid{grid-template-columns:1fr}
@@ -523,6 +533,16 @@
   .deck-face.back{transform:rotateY(180deg);display:flex;flex-direction:column;text-align:left;position:relative;height:100%;
     padding:18px 18px 16px;border:1px solid color-mix(in srgb,var(--c) 48%,var(--line));
     box-shadow:inset 0 0 44px color-mix(in srgb,var(--c) 12%,transparent)}
+  .persona-modal{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;flex-direction:column;
+    background:rgba(5,6,12,.78);backdrop-filter:blur(6px);padding:24px}
+  .persona-modal.show{display:flex;animation:fadein .2s ease both}
+  .persona-modal-card{width:min(78vw,320px);aspect-ratio:97/134;filter:drop-shadow(0 26px 48px rgba(0,0,0,.7))}
+  .persona-back{display:flex;flex-direction:column;text-align:left;position:relative;height:100%;border-radius:14px;
+    background:linear-gradient(160deg,#241c33,#15101d);padding:18px 18px 16px;
+    border:1px solid color-mix(in srgb,var(--c) 48%,var(--line));
+    box-shadow:inset 0 0 44px color-mix(in srgb,var(--c) 12%,transparent)}
+  .persona-modal-hint{margin-top:16px;color:#eee5d2;font-size:.78rem;letter-spacing:.16em}
+  body.meeting-paused #s-meeting *{animation-play-state:paused!important}
   .deck-back-portrait{position:absolute;right:9px;top:7px;width:76px;height:86px;object-fit:contain;opacity:.92;
     filter:drop-shadow(0 0 12px color-mix(in srgb,var(--c) 55%,transparent)) drop-shadow(0 5px 8px rgba(0,0,0,.5));pointer-events:none}
   .deck-back-kicker{font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--c);margin-bottom:5px}
@@ -754,6 +774,11 @@
 
 </main>
 
+<div class="persona-modal" id="persona-modal" aria-hidden="true">
+  <div class="persona-modal-card" id="persona-modal-card"></div>
+  <p class="persona-modal-hint">点击任何位置退出卡片</p>
+</div>
+
 <script src="/vendor/html2canvas.min.js"></script>
 <script>
 const PERSONA = {
@@ -963,28 +988,32 @@ function matchNote(pid){
   if(n>=3)return `中等共振：它会参与争论，但未必掌控全局。`;
   return score<=0?'低声旁听：这一次你暂时没有太靠近它。':'轻微共振：它会补上一句你可能忽略的话。';
 }
+function personaBackHTML(key,extraClass='deck-face back'){
+  const m=pmeta(key), stars=matchStars(key);
+  return `<div class="${extraClass}" style="--c:var(${m.v})">
+    <img class="deck-back-portrait" src="/abstract/${key}.png" alt="">
+    <p class="deck-back-kicker">INNER VOICE</p>
+    <div class="deck-back-title">${esc(m.n)}</div>
+    <p class="deck-back-role">${esc(m.role)}</p>
+    <p class="deck-back-desc">${esc(m.desc)}</p>
+    <p class="deck-back-desc">${esc(m.watch)}</p>
+    <p class="deck-back-desc">${esc(m.trap)}</p>
+    <div class="deck-back-row">
+      <span class="deck-back-label">与你的匹配程度</span>
+      <div class="match-stars" aria-label="${stars} 星">${starHTML(stars)}</div>
+      <p class="deck-back-note">${esc(matchNote(key))}<br>${esc(m.gift)}</p>
+    </div>
+  </div>`;
+}
 function buildDeck(){
   const stage=$('deck'); stage.innerHTML=''; DECK=[];
   ROSTER.forEach((key,i)=>{
-    const m=pmeta(key), stars=matchStars(key);
+    const m=pmeta(key);
     const el=document.createElement('div'); el.className='deck-card'; el.dataset.persona=key;
     el.style.setProperty('--c',`var(${m.v})`);
     el.innerHTML=`<div class="deck-inner">
       <div class="deck-face front"><img src="/card/${key}.jpg" alt="${m.n}" loading="eager"><span class="deck-tap">点击翻面</span></div>
-      <div class="deck-face back">
-        <img class="deck-back-portrait" src="/abstract/${key}.png" alt="">
-        <p class="deck-back-kicker">INNER VOICE</p>
-        <div class="deck-back-title">${m.n}</div>
-        <p class="deck-back-role">${m.role}</p>
-        <p class="deck-back-desc">${m.desc}</p>
-        <p class="deck-back-desc">${m.watch}</p>
-        <p class="deck-back-desc">${m.trap}</p>
-        <div class="deck-back-row">
-          <span class="deck-back-label">与你的匹配程度</span>
-          <div class="match-stars" aria-label="${stars} 星">${starHTML(stars)}</div>
-          <p class="deck-back-note">${matchNote(key)}<br>${m.gift}</p>
-        </div>
-      </div>
+      ${personaBackHTML(key)}
     </div>`;
     el.onclick=()=>{
       if(deckDragging)return;
@@ -1039,6 +1068,39 @@ let deckDragging=false;
   });
   stage.addEventListener('pointercancel',()=>{ x0=null; deckDragging=false; });
 })();
+let meetingPaused=false, pauseWaiters=[];
+function setMeetingPaused(on){
+  meetingPaused=on;
+  document.body.classList.toggle('meeting-paused',on);
+  if(!on){
+    const waiters=pauseWaiters.splice(0);
+    waiters.forEach(resolve=>resolve());
+  }
+}
+function pauseMeetingFlow(){ setMeetingPaused(true); }
+function resumeMeetingFlow(){ setMeetingPaused(false); }
+async function waitIfPaused(){
+  while(meetingPaused) await new Promise(resolve=>pauseWaiters.push(resolve));
+}
+function showPersonaModal(pid){
+  const modal=$('persona-modal'), card=$('persona-modal-card');
+  if(!modal||!card||!PERSONA[pid])return;
+  const m=pmeta(pid);
+  card.style.setProperty('--c',`var(${m.v})`);
+  card.innerHTML=personaBackHTML(pid,'persona-back');
+  pauseMeetingFlow();
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden','false');
+}
+function hidePersonaModal(){
+  const modal=$('persona-modal');
+  if(!modal)return;
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden','true');
+  resumeMeetingFlow();
+}
+$('persona-modal').onclick=hidePersonaModal;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hidePersonaModal();});
 function goRoster(){
   show('s-roster');
   deckFlipped.clear();
@@ -1210,10 +1272,19 @@ const SCENERY_SVG=`<svg class="scenery" viewBox="0 0 600 200" preserveAspectRati
     <path d="M470,172 l-2,-6"/><path d="M476,172 l1,-7"/><path d="M560,176 l-2,-6"/><path d="M566,176 l1,-7"/>
   </g>
 </svg>`;
-function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+async function sleep(ms){
+  let elapsed=0;
+  while(elapsed<ms){
+    await waitIfPaused();
+    const chunk=Math.min(50,ms-elapsed), start=performance.now();
+    await new Promise(r=>setTimeout(r,chunk));
+    if(!meetingPaused) elapsed+=performance.now()-start;
+  }
+}
 async function typeOut(el,text){                          // 逐字打字(回放用)
   if(!el){return;} el.textContent='';
   for(let i=0;i<text.length;i++){
+    await waitIfPaused();
     el.textContent+=text[i];
     const ch=text[i];
     if(/[。！？；]/.test(ch)) await sleep(210);
@@ -1224,6 +1295,7 @@ async function typeOut(el,text){                          // 逐字打字(回放
 async function typeAppend(el,text){
   if(!el||!text)return;
   for(let i=0;i<text.length;i++){
+    await waitIfPaused();
     el.textContent+=text[i];
     const ch=text[i];
     if(/[。！？；]/.test(ch)) await sleep(210);
@@ -1235,6 +1307,7 @@ async function typeTrialVoice(el,text){
   if(!el)return;
   el.textContent='';
   for(let i=0;i<(text||'').length;i++){
+    await waitIfPaused();
     el.textContent+=text[i];
     if(i%8===0)scrollFlowEnd('auto');
     const ch=text[i];
@@ -1269,6 +1342,7 @@ function makeFighter(pid){
   const np=document.createElement('span'); np.className='nameplate'; el.appendChild(np);  // 名牌(揭面才显)
   el.addEventListener('mouseenter',()=>arenaHoverMember(pid,true));
   el.addEventListener('mouseleave',()=>arenaHoverMember(pid,false));
+  el.addEventListener('click',e=>{e.stopPropagation(); showPersonaModal(pid);});
   $('arena').appendChild(el); fighters[pid]=el; return el;
 }
 function arenaLineup(){
@@ -1281,6 +1355,7 @@ function arenaLineup(){
     '<div class="zones" id="zones"><div class="zone za"><span class="zlabel"></span></div>'+
     '<div class="zone zthird"><span class="zlabel">第三条路</span></div>'+
     '<div class="zone zb"><span class="zlabel"></span></div></div>');
+  a.insertAdjacentHTML('beforeend','<div class="arena-help">点击人物可查看卡片</div>');
   SPRITE_IDS.forEach((pid,i)=>{
     const el=makeFighter(pid);
     el.style.left=(32+i*7.2)+'%';                        // 初始六人聚在舞台中间
@@ -1379,6 +1454,8 @@ function arenaCutinShow(ev,showStance){   // 发言切入幕:发言者放大占�
   if(!c){ c=document.createElement('div'); a.appendChild(c); }
   const right = ev.stance==='b';                         // 支持A→靠左, 支持B→靠右(镜像), 第三条路→靠左
   c.className='cutin'+(right?' side-right':'');
+  c.dataset.persona=ev.persona;
+  c.onclick=e=>{e.stopPropagation(); showPersonaModal(ev.persona);};
   c.style.setProperty('--c',`var(${m.v})`);
   c.innerHTML=
     `<img class="cutin-char" src="/abstract/${ev.persona}.png" alt="">`+
@@ -1643,22 +1720,51 @@ function renderReport(r){
   lastReport=r;
   $('r-summary').textContent=r.verdict_summary||'';
   $('r-steps').innerHTML=(r.action_steps||[]).map(s=>`<li>${esc(s)}</li>`).join('');
-  // 各方立场:按用户最终选择重排——选中侧靠前,未选侧下沉淡化(末尾仍只留一条异见)
-  const pick=verdictPick, campOf={};
-  (state.transcript||[]).forEach(e=>{const m=PERSONA[e.persona]; if(m)campOf[m.n]=e.stance;});
-  const positions=r.persona_positions||[];
-  const chosenOf=p=> pick==='synthesis' ? true : campOf[p.persona]===pick;
-  const li=(p,faded)=>`<li class="${faded?'faded':''}"><b style="color:var(${pmeta_byname(p.persona)})">${esc(p.persona)}</b>（${esc(p.stance)}）：${esc(p.key_point)}</li>`;
-  const chosen=positions.filter(chosenOf), others=positions.filter(p=>!chosenOf(p));
-  $('r-positions').innerHTML = chosen.map(p=>li(p,false)).join('')
-    + (others.length && pick!=='synthesis' ? '<li class="pos-sep">另一侧的声音——你没有选，但它们没有消失</li>' : '')
-    + others.map(p=>li(p,true)).join('');
+  $('r-positions').innerHTML = groupedPositionsHTML(r.persona_positions||[]);
   $('r-risk').textContent=r.risk_notes||'';
   $('r-dissent').textContent=r.dissent?('「'+r.dissent+'」'):'';
   $('r-topic').textContent=(state.topic||'').trim()?('议题 · '+state.topic.trim()):'';
   show('s-report');
 }
 function pmeta_byname(name){for(const k in PERSONA)if(PERSONA[k].n===name)return PERSONA[k].v;return '--brass';}
+function pid_byname(name){for(const k in PERSONA)if(PERSONA[k].n===name)return k;return '';}
+function reportCampOf(){
+  const camp={};
+  (state.transcript||[]).forEach(e=>{const m=PERSONA[e.persona]; if(m)camp[m.n]=e.stance;});
+  return camp;
+}
+function campForPosition(p,campOf){
+  if(campOf[p.persona])return campOf[p.persona];
+  const s=String(p.stance||'')+' '+String(p.key_point||'');
+  const aName=duelists[0]?pmeta(duelists[0]).n:'', bName=duelists[1]?pmeta(duelists[1]).n:'';
+  if(/第三|综合|折中|两边|双方/.test(s))return 'third';
+  if((meetingSides.a&&s.includes(meetingSides.a)) || (aName&&s.includes(aName)))return 'a';
+  if((meetingSides.b&&s.includes(meetingSides.b)) || (bName&&s.includes(bName)))return 'b';
+  const pid=pid_byname(p.persona);
+  return pid&&campOf[PERSONA[pid].n] ? campOf[PERSONA[pid].n] : 'unknown';
+}
+function positionLiHTML(p){
+  return `<li><b style="color:var(${pmeta_byname(p.persona)})">${esc(p.persona)}</b>（${esc(p.stance)}）：${esc(p.key_point)}</li>`;
+}
+function groupedPositionsHTML(positions){
+  if(!positions.length)return '';
+  prepareMeetingSides();
+  const campOf=reportCampOf(), groups={a:[],b:[],third:[],unknown:[]};
+  positions.forEach(p=>{
+    const camp=campForPosition(p,campOf);
+    (groups[camp]||groups.unknown).push(p);
+  });
+  const labels={
+    a:`正方 · 支持“${meetingSides.a}”`,
+    b:`反方 · 支持“${meetingSides.b}”`,
+    third:'两方都支持 / 第三条路',
+    unknown:'暂未归队的声音'
+  };
+  return ['a','b','third','unknown'].map(k=>{
+    if(!groups[k].length)return '';
+    return `<li class="pos-group">${esc(labels[k])}</li>`+groups[k].map(positionLiHTML).join('');
+  }).join('');
+}
 function phaseLabel(e){
   const phase={duel:'队长陈词',stance:'选边发言',blind_spot:'盲点交锋',bottom_line:'底线交换'}[e.phase]||'会议发言';
   return `第${e.round||1}轮 · ${phase}`;
@@ -1725,7 +1831,7 @@ function renderDetailRecord(detail){
 }
 function detailReportHTML(r){
   const steps=(r.action_steps||[]).map(s=>`<li>${esc(s)}</li>`).join('');
-  const positions=(r.persona_positions||[]).map(p=>`<li><b style="color:var(${pmeta_byname(p.persona)})">${esc(p.persona)}</b>（${esc(p.stance)}）：${esc(p.key_point)}</li>`).join('');
+  const positions=groupedPositionsHTML(r.persona_positions||[]);
   return `<h2>${esc(r.verdict_summary||'（暂无总结）')}</h2>
     <div class="block"><h3>可执行步骤</h3><ul>${steps}</ul></div>
     <div class="block"><h3>各方立场</h3><ul>${positions}</ul></div>
