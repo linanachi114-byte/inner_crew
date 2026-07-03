@@ -386,16 +386,17 @@
     border-radius:3px;padding:14px;font-size:1rem}
   .vbtn:hover{border-color:var(--brass)}
   .vbtn.sel{border-color:var(--brass);background:color-mix(in srgb,var(--brass) 12%,var(--ground-2))}
+  .vbtn.back-choice{border-color:color-mix(in srgb,var(--guardian) 55%,var(--line));color:#bdd3e8;
+    background:color-mix(in srgb,var(--guardian) 10%,var(--ground-2))}
+  .vbtn.back-choice:hover{border-color:var(--guardian)}
+  .verdict-submit{width:calc((100% - 36px)/4);min-width:140px}
+  .wide-go{min-width:240px}
   .continue-zone{margin:26px 0 8px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
   .continue-zone h2{font-size:1.28rem;margin-bottom:4px}
   .continue-zone p{color:var(--muted);font-size:.94rem;margin-bottom:14px}
   .continue-btns{display:flex;flex-wrap:wrap;gap:12px}
   .continue-btns .go{margin-top:0}
   .continue-btns .choice{flex:1;margin:0;min-width:180px;text-align:center}
-  .verdict-back{margin-top:24px;margin-left:10px;background:transparent;border:1px solid var(--line);color:var(--muted);
-    border-radius:2px;padding:13px 26px;font-size:.98rem;font-weight:500;letter-spacing:.04em}
-  .verdict-back:hover{border-color:var(--brass);color:var(--brass)}
-
   .report .block{margin-bottom:24px}
   .report h3{font-size:.78rem;letter-spacing:.28em;text-transform:uppercase;color:var(--brass);margin-bottom:8px}
   .report ul{list-style:none}
@@ -425,6 +426,7 @@
   .qa-card .q{color:var(--brass);font-size:.9rem;line-height:1.65;margin-bottom:8px}
   .qa-card .a{color:#eee5d2;line-height:1.7}
   .radar-wrap{position:relative;width:min(620px,100%);aspect-ratio:1;margin:10px auto 4px}
+  .radar-hint{margin-top:24px;text-align:center}
   #detail-radar{position:absolute;inset:12%;width:76%;height:76%}
   .radar-persona{position:absolute;width:92px;text-align:center;transform:translate(-50%,-50%)}
   .radar-persona img{width:58px;height:64px;object-fit:contain;border:none;
@@ -438,6 +440,8 @@
   .log-entry .who{color:var(--c);font-weight:500;letter-spacing:.08em}
   .log-entry .tag{font-size:.68rem;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:1px 7px}
   .log-entry .body{color:#eee5d2;line-height:1.75}
+  .log-round{margin:24px 0 10px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    color:var(--brass);font-size:.78rem;letter-spacing:.2em;text-transform:uppercase}
   .detail-report{border:1px solid var(--line);border-radius:6px;padding:18px;background:color-mix(in srgb,var(--panel) 38%,transparent)}
   .detail-report .block{margin-top:20px}
   .detail-report h3{font-size:.76rem;letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:8px}
@@ -462,7 +466,7 @@
     .random-topic{padding:11px 16px}
     .verdict-btns,.continue-btns{flex-direction:column}
     .vbtn,.continue-btns .choice{min-width:0}
-    .verdict-back{display:block;width:100%;margin-left:0}
+    .verdict-submit,.wide-go{width:100%}
   }
   /* —— BGM 开关:金色声波,播放时律动,关闭时压平变暗 —— */
   #bgm-toggle{position:fixed;right:20px;bottom:20px;z-index:100;width:44px;height:44px;border-radius:50%;
@@ -681,11 +685,11 @@
         <button class="vbtn" data-v="a" id="vb-a">听 A 的</button>
         <button class="vbtn" data-v="b" id="vb-b">听 B 的</button>
         <button class="vbtn" data-v="synthesis">我要综合</button>
+        <button class="vbtn back-choice" id="verdict-back" type="button">我还想再听一轮</button>
       </div>
       <label for="vnote">想补充一句吗？（可选，留空也能提交）</label>
       <textarea id="vnote" rows="2" autocomplete="off" placeholder="例如：听野心家的，但先存够六个月生活费"></textarea>
-      <button class="go" id="verdict-go" disabled>生成决策建议书</button>
-      <button class="verdict-back" id="verdict-back" type="button">我还想再听一轮</button>
+      <button class="go verdict-submit" id="verdict-go" disabled>生成决策建议书</button>
     </div>
     <div class="thinking" id="thinking" style="display:none"><span></span><span></span><span></span> 脑内还在吵……</div>
     <div id="speeches"></div>
@@ -729,7 +733,7 @@
       <div class="radar-wrap" id="radar-wrap">
         <canvas id="detail-radar" width="520" height="520"></canvas>
       </div>
-      <p class="hint">雷达图综合试炼得分与掉落卡片的权重修正，越靠外代表这个声音在本轮越强。</p>
+      <p class="hint radar-hint">雷达图综合试炼得分与掉落卡片的权重修正，越靠外代表这个声音在本轮越强。</p>
     </div>
     <div class="detail-block">
       <h2>完整会议文字记录</h2>
@@ -739,7 +743,7 @@
       <h2>最终会议纪要</h2>
       <div class="detail-report" id="d-report"></div>
     </div>
-    <button class="go" id="detail-restart">再问其他问题</button>
+    <button class="go wide-go" id="detail-restart">再问其他问题</button>
   </section>
 
 </main>
@@ -1290,10 +1294,9 @@ function arenaSpeak(pid,on){                               // 6 说话动效开�
 }
 function arenaHoverMember(pid,on){
   if(!arenaOn)return;
-  const el=fighters[pid]; if(!el||!el.classList.contains('member'))return;
-  const camp=el.dataset.camp;
+  const el=fighters[pid]; if(!el)return;
   Object.values(fighters).forEach(f=>{
-    if(f.dataset.camp===camp && f!==el)f.classList.toggle('camp-dim',on);
+    if(f!==el)f.classList.toggle('camp-dim',on);
   });
   el.classList.toggle('hover-focus',on);
 }
@@ -1305,11 +1308,11 @@ function arenaJoinCamp(pid,stance){                        // 7 配角跑向阵�
   let left;
   if(stance==='a'){
     el.classList.add('member');
-    left=19+campCount.a*3.2; campCount.a++; el.style.zIndex=3+campCount.a;
+    left=20+campCount.a*5.2; campCount.a++; el.style.zIndex=3+campCount.a;
   }
   else if(stance==='b'){
     el.classList.add('member','face-left');
-    left=81-campCount.b*3.2; campCount.b++; el.style.zIndex=3+campCount.b;
+    left=80-campCount.b*5.2; campCount.b++; el.style.zIndex=3+campCount.b;
   }
   else { el.classList.remove('member'); left=46+campCount.third*5; campCount.third++; }
   el.classList.add('in','running'); el.style.left=left+'%';
@@ -1591,8 +1594,8 @@ async function replayMeeting(){                              // R 预录回放:�
 $('continue-yes').onclick=()=>showVerdictZone();
 $('continue-no').onclick=()=>runExtraRound(Math.min(3,meetingRound+1));
 $('verdict-back').onclick=()=>{ arenaClearVerdict(); showContinueZone(); };
-document.querySelectorAll('.vbtn').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.vbtn').forEach(x=>x.classList.remove('sel'));
+document.querySelectorAll('.vbtn[data-v]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.vbtn[data-v]').forEach(x=>x.classList.remove('sel'));
   b.classList.add('sel');verdictPick=b.dataset.v;$('verdict-go').disabled=false;
   arenaVerdict(verdictPick);   // 选中侧当场"肯定",落败侧淡隐(不消失)
 });
@@ -1632,11 +1635,36 @@ function phaseLabel(e){
   const phase={duel:'队长陈词',stance:'选边发言',blind_spot:'盲点交锋',bottom_line:'底线交换'}[e.phase]||'会议发言';
   return `第${e.round||1}轮 · ${phase}`;
 }
+function roundTitle(n){
+  return {1:'第一轮',2:'第二轮',3:'第三轮'}[n]||`第${n}轮`;
+}
+function phaseTitle(e){
+  const phase={duel:'队长陈词',stance:'选边发言',blind_spot:'盲点交锋',bottom_line:'底线交换'}[e.phase]||'会议发言';
+  return `${roundTitle(e.round||1)}　${phase}`;
+}
 function stanceTextForLog(e){
   if(e.stance==='third')return '第三条路';
   if(e.stance==='a')return '支持“'+meetingSides.a+'”';
   if(e.stance==='b')return '支持“'+meetingSides.b+'”';
   return '';
+}
+function transcriptDetailHTML(entries){
+  if(!entries||!entries.length)return '<p class="hint">没有会议记录。</p>';
+  let lastKey='', html='';
+  entries.forEach(e=>{
+    const m=pmeta(e.persona);
+    const stance=stanceTextForLog(e);
+    const key=`${e.round||1}|${e.phase||'stance'}`;
+    if(key!==lastKey){
+      html+=`<div class="log-round">${esc(phaseTitle(e))}</div>`;
+      lastKey=key;
+    }
+    html+=`<div class="log-entry" style="--c:var(${m.v})">
+      <div class="head"><span class="who">${esc(m.n)}</span>${stance?`<span class="tag">${esc(stance)}</span>`:''}</div>
+      <div class="body">${esc(e.text||'')}</div>
+    </div>`;
+  });
+  return html;
 }
 async function openDetailRecord(){
   const detail=await postJSON('/api/detail/trials',{state});
@@ -1664,14 +1692,7 @@ function renderDetailRecord(detail){
     {who:'本我', q:q.selfcore||'抛开“该不该”——你到底想要什么？', a:state.desire||'（未回答）'},
   ].map(x=>`<div class="qa-card"><p class="q">${esc(x.who)}：${esc(x.q)}</p><p class="a">${esc(x.a)}</p></div>`).join('');
   renderRadar(detail);
-  $('d-transcript').innerHTML=(state.transcript||[]).map(e=>{
-    const m=pmeta(e.persona);
-    const stance=stanceTextForLog(e);
-    return `<div class="log-entry" style="--c:var(${m.v})">
-      <div class="head"><span class="who">${esc(m.n)}</span><span class="tag">${esc(phaseLabel(e))}</span>${stance?`<span class="tag">${esc(stance)}</span>`:''}</div>
-      <div class="body">${esc(e.text||'')}</div>
-    </div>`;
-  }).join('') || '<p class="hint">没有会议记录。</p>';
+  $('d-transcript').innerHTML=transcriptDetailHTML(state.transcript||[]);
   $('d-report').innerHTML=detailReportHTML(lastReport||{});
 }
 function detailReportHTML(r){
