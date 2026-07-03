@@ -399,6 +399,47 @@
   .report .dissent{font-style:italic;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;margin-top:8px}
   .report-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
   .report-actions .go{margin-top:0}
+  .detail-page .detail-block{margin:30px 0 38px}
+  .detail-page .detail-block h2{font-size:1.32rem;margin-bottom:12px}
+  .detail-topic{color:#eee5d2;font-size:1.08rem;line-height:1.75;padding:16px 18px;border-left:2px solid var(--brass);
+    background:linear-gradient(100deg,color-mix(in srgb,var(--brass) 10%,transparent),transparent 70%)}
+  .detail-list{display:flex;flex-direction:column;gap:14px}
+  .trial-detail{border:1px solid var(--line);border-radius:6px;padding:16px 18px;background:color-mix(in srgb,var(--panel) 42%,transparent)}
+  .trial-detail .meta{font-size:.72rem;letter-spacing:.18em;color:var(--brass);margin-bottom:6px}
+  .trial-detail .scene-text{color:var(--muted);font-size:.92rem;line-height:1.7;margin-bottom:10px}
+  .trial-detail .picked{color:#f0e8d8;margin-bottom:10px}
+  .delta-row{display:flex;flex-wrap:wrap;gap:7px}
+  .delta-chip{font-family:var(--mono);font-size:.7rem;border:1px solid color-mix(in srgb,var(--c) 42%,var(--line));
+    color:var(--c);border-radius:12px;padding:2px 8px;background:color-mix(in srgb,var(--c) 9%,transparent)}
+  .delta-chip.zero{opacity:.32}
+  .qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .qa-card{border:1px solid var(--line);border-radius:6px;padding:15px 16px;background:var(--ground-2)}
+  .qa-card .q{color:var(--brass);font-size:.9rem;line-height:1.65;margin-bottom:8px}
+  .qa-card .a{color:#eee5d2;line-height:1.7}
+  .radar-wrap{position:relative;width:min(620px,100%);aspect-ratio:1;margin:10px auto 4px}
+  #detail-radar{position:absolute;inset:12%;width:76%;height:76%}
+  .radar-persona{position:absolute;width:92px;text-align:center;transform:translate(-50%,-50%)}
+  .radar-persona img{width:54px;height:54px;border-radius:50%;object-fit:cover;border:1px solid color-mix(in srgb,var(--c) 48%,var(--line));
+    box-shadow:0 8px 22px -12px var(--c);display:block;margin:0 auto 4px;background:var(--ground-2)}
+  .radar-persona b{display:block;color:var(--c);font-size:.8rem;line-height:1.2}
+  .radar-persona span{display:block;font-family:var(--mono);font-size:.66rem;color:var(--muted)}
+  .log-entry{border-left:2px solid var(--c);padding:12px 14px;margin-bottom:12px;
+    background:linear-gradient(100deg,color-mix(in srgb,var(--c) 10%,transparent),transparent 72%)}
+  .log-entry .head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:5px}
+  .log-entry .who{color:var(--c);font-weight:500;letter-spacing:.08em}
+  .log-entry .tag{font-size:.68rem;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:1px 7px}
+  .log-entry .body{color:#eee5d2;line-height:1.75}
+  .detail-report{border:1px solid var(--line);border-radius:6px;padding:18px;background:color-mix(in srgb,var(--panel) 38%,transparent)}
+  .detail-report .block{margin-top:20px}
+  .detail-report h3{font-size:.76rem;letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:8px}
+  .detail-report ul{list-style:none}
+  .detail-report li{position:relative;padding-left:18px;margin-bottom:8px;line-height:1.7}
+  .detail-report li::before{content:"—";position:absolute;left:0;color:var(--faint)}
+  .detail-report .dissent{font-style:italic;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:16px}
+  @media (max-width:560px){
+    .qa-grid{grid-template-columns:1fr}
+    .radar-persona{width:76px}.radar-persona img{width:46px;height:46px}
+  }
   .hint{font-size:.84rem;color:var(--faint);margin-top:6px}
   .err{color:var(--ambition);font-size:.9rem;margin-top:10px}
   .q-pending{font-style:italic;opacity:.55;animation:blink 1.4s ease-in-out infinite}
@@ -652,7 +693,41 @@
       <p class="hint" style="margin-top:20px">内心的会，永远值得再开一次。 · Inner Crew</p>
     </div>
     <button class="go" id="export-card" style="margin-top:16px">复制会议纪要 PNG</button>
+    <button class="go" id="detail-open" style="margin-top:16px">查看会议详细记录</button>
     <button class="go" id="restart-topic" style="margin-top:16px">再问其他问题</button>
+  </section>
+
+  <!-- 7 详细记录 -->
+  <section class="screen detail-page" id="s-detail">
+    <p class="eyebrow">会议详细记录</p>
+    <div class="detail-block">
+      <h2>这次会议从哪里开始</h2>
+      <p class="detail-topic" id="d-topic">——</p>
+    </div>
+    <div class="detail-block">
+      <h2>试炼问题与选择影响</h2>
+      <div class="detail-list" id="d-trials"></div>
+    </div>
+    <div class="detail-block">
+      <h2>会前问询</h2>
+      <div class="qa-grid" id="d-qa"></div>
+    </div>
+    <div class="detail-block">
+      <h2>六维人格倾向</h2>
+      <div class="radar-wrap" id="radar-wrap">
+        <canvas id="detail-radar" width="520" height="520"></canvas>
+      </div>
+      <p class="hint">雷达图综合试炼得分与掉落卡片的权重修正，越靠外代表这个声音在本轮越强。</p>
+    </div>
+    <div class="detail-block">
+      <h2>完整会议文字记录</h2>
+      <div id="d-transcript"></div>
+    </div>
+    <div class="detail-block">
+      <h2>最终会议纪要</h2>
+      <div class="detail-report" id="d-report"></div>
+    </div>
+    <button class="go" id="detail-restart">再问其他问题</button>
   </section>
 
 </main>
@@ -673,6 +748,7 @@ const state = {topic:'',assets:'',desire:'',scores:{},weights:{},choices:[],card
 let NODES={}, nodeIdx=0, duelists=[], duelStmts={}, verdictPick=null, meetingRound=1;
 const ROUND_LABEL={2:'第三幕 · 盲点交锋',3:'第四幕 · 底线交换'};
 let meetingSides={a:'方案 A',b:'方案 B'};
+let lastReport=null;
 
 const $=id=>document.getElementById(id);
 const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0);};
@@ -816,6 +892,7 @@ async function goAsk(){
     const q=await postJSON('/api/ask',{topic:state.topic,state});
     $('q-logician').textContent='计算师：'+q.logician_q;
     $('q-selfcore').textContent='本我：'+q.selfcore_q;
+    state.ask_questions={logician:q.logician_q,selfcore:q.selfcore_q};
   }finally{
     $('q-logician').classList.remove('q-pending'); $('q-selfcore').classList.remove('q-pending');
     $('ask-next').disabled=false;
@@ -1445,6 +1522,7 @@ $('verdict-go').onclick=async()=>{
 
 /* —— 建议书 —— */
 function renderReport(r){
+  lastReport=r;
   $('r-summary').textContent=r.verdict_summary||'';
   $('r-steps').innerHTML=(r.action_steps||[]).map(s=>`<li>${esc(s)}</li>`).join('');
   // 各方立场:按用户最终选择重排——选中侧靠前,未选侧下沉淡化(末尾仍只留一条异见)
@@ -1463,6 +1541,104 @@ function renderReport(r){
   show('s-report');
 }
 function pmeta_byname(name){for(const k in PERSONA)if(PERSONA[k].n===name)return PERSONA[k].v;return '--brass';}
+function phaseLabel(e){
+  const phase={duel:'队长陈词',stance:'选边发言',blind_spot:'盲点交锋',bottom_line:'底线交换'}[e.phase]||'会议发言';
+  return `第${e.round||1}轮 · ${phase}`;
+}
+function stanceTextForLog(e){
+  if(e.stance==='third')return '第三条路';
+  if(e.stance==='a')return '支持“'+meetingSides.a+'”';
+  if(e.stance==='b')return '支持“'+meetingSides.b+'”';
+  return '';
+}
+async function openDetailRecord(){
+  const detail=await postJSON('/api/detail/trials',{state});
+  renderDetailRecord(detail);
+  show('s-detail');
+}
+function renderDetailRecord(detail){
+  prepareMeetingSides();
+  $('d-topic').textContent='议题：'+(state.topic||'（未填写）');
+  $('d-trials').innerHTML=(detail.choices||[]).map(item=>{
+    const chips=Object.entries(item.delta||{}).map(([pid,v])=>{
+      const m=pmeta(pid), sign=v>0?'+'+v:String(v);
+      return `<span class="delta-chip ${v===0?'zero':''}" style="--c:var(${m.v})">${m.n} ${sign}</span>`;
+    }).join('');
+    return `<div class="trial-detail">
+      <div class="meta">第${item.index}道门 · ${esc(item.place)}</div>
+      <p class="scene-text">${esc(item.scene)}</p>
+      <p class="picked">你的选择：<b>${esc(item.choice_id)}</b> · ${esc(item.choice)}</p>
+      <div class="delta-row">${chips}</div>
+    </div>`;
+  }).join('') || '<p class="hint">没有试炼记录。</p>';
+  const q=state.ask_questions||{};
+  $('d-qa').innerHTML=[
+    {who:'计算师', q:q.logician||'先盘点一下——你手里到底有什么牌？', a:state.assets||'（未回答）'},
+    {who:'本我', q:q.selfcore||'抛开“该不该”——你到底想要什么？', a:state.desire||'（未回答）'},
+  ].map(x=>`<div class="qa-card"><p class="q">${esc(x.who)}：${esc(x.q)}</p><p class="a">${esc(x.a)}</p></div>`).join('');
+  renderRadar(detail);
+  $('d-transcript').innerHTML=(state.transcript||[]).map(e=>{
+    const m=pmeta(e.persona);
+    const stance=stanceTextForLog(e);
+    return `<div class="log-entry" style="--c:var(${m.v})">
+      <div class="head"><span class="who">${esc(m.n)}</span><span class="tag">${esc(phaseLabel(e))}</span>${stance?`<span class="tag">${esc(stance)}</span>`:''}</div>
+      <div class="body">${esc(e.text||'')}</div>
+    </div>`;
+  }).join('') || '<p class="hint">没有会议记录。</p>';
+  $('d-report').innerHTML=detailReportHTML(lastReport||{});
+}
+function detailReportHTML(r){
+  const steps=(r.action_steps||[]).map(s=>`<li>${esc(s)}</li>`).join('');
+  const positions=(r.persona_positions||[]).map(p=>`<li><b style="color:var(${pmeta_byname(p.persona)})">${esc(p.persona)}</b>（${esc(p.stance)}）：${esc(p.key_point)}</li>`).join('');
+  return `<h2>${esc(r.verdict_summary||'（暂无总结）')}</h2>
+    <div class="block"><h3>可执行步骤</h3><ul>${steps}</ul></div>
+    <div class="block"><h3>各方立场</h3><ul>${positions}</ul></div>
+    <div class="block"><h3>风险提示</h3><p>${esc(r.risk_notes||'')}</p></div>
+    ${r.dissent?`<p class="dissent">「${esc(r.dissent)}」</p>`:''}`;
+}
+function renderRadar(detail){
+  const wrap=$('radar-wrap');
+  wrap.querySelectorAll('.radar-persona').forEach(x=>x.remove());
+  const canvas=$('detail-radar'), ctx=canvas.getContext('2d');
+  const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2,r=Math.min(w,h)*.34;
+  ctx.clearRect(0,0,w,h);
+  const vals=ROSTER.map(pid=>(detail.scores?.[pid]||0)+(detail.weights?.[pid]||0));
+  const max=Math.max(1,...vals.map(v=>Math.max(0,v)));
+  ctx.strokeStyle='rgba(231,224,208,.14)'; ctx.lineWidth=1;
+  for(let ring=1;ring<=5;ring++){
+    ctx.beginPath();
+    ROSTER.forEach((pid,i)=>{
+      const a=-Math.PI/2+i*Math.PI*2/ROSTER.length, rr=r*ring/5;
+      const x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+      if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.closePath(); ctx.stroke();
+  }
+  ROSTER.forEach((pid,i)=>{
+    const a=-Math.PI/2+i*Math.PI*2/ROSTER.length;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r); ctx.stroke();
+  });
+  ctx.beginPath();
+  ROSTER.forEach((pid,i)=>{
+    const a=-Math.PI/2+i*Math.PI*2/ROSTER.length;
+    const rr=r*Math.max(0,vals[i])/max;
+    const x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+    if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle='rgba(201,168,106,.22)'; ctx.strokeStyle='rgba(201,168,106,.88)'; ctx.lineWidth=2;
+  ctx.fill(); ctx.stroke();
+  ROSTER.forEach((pid,i)=>{
+    const m=pmeta(pid), a=-Math.PI/2+i*Math.PI*2/ROSTER.length;
+    const x=50+Math.cos(a)*43, y=50+Math.sin(a)*43;
+    const el=document.createElement('div');
+    el.className='radar-persona'; el.style.left=x+'%'; el.style.top=y+'%'; el.style.setProperty('--c',`var(${m.v})`);
+    el.innerHTML=`<img src="/card/${pid}.jpg" alt="${esc(m.n)}"><b>${esc(m.n)}</b><span>${vals[i]}</span>`;
+    wrap.appendChild(el);
+  });
+}
+$('detail-open').onclick=openDetailRecord;
+$('detail-restart').onclick=resetForNewTopic;
 /* —— G 导出会议纪要 PNG：优先复制到剪贴板，失败则下载兜底 —— */
 $('export-card').onclick=async()=>{
   const btn=$('export-card');
@@ -1504,12 +1680,13 @@ function downloadReportBlob(blob){
 }
 function resetForNewTopic(){
   Object.assign(state,{topic:'',assets:'',desire:'',scores:{},weights:{},choices:[],cards:[],likes:[],dislikes:[],transcript:[]});
-  delete state._replayVerdict;
+  delete state._replayVerdict; delete state.ask_questions; lastReport=null;
   NODES={}; ORDER=[]; nodeIdx=0; duelists=[]; duelStmts={}; verdictPick=null; meetingRound=1;
   ['topic','a-assets','a-desire','vnote'].forEach(id=>{const el=$(id); if(el)el.value='';});
   ['topic-err','meeting-err'].forEach(id=>{const el=$(id); if(el)el.textContent='';});
   $('speeches').innerHTML=''; $('focus').innerHTML='';
   $('continue-zone').style.display='none'; $('verdict-zone').style.display='none';
+  ['d-trials','d-qa','d-transcript','d-report'].forEach(id=>{const el=$(id); if(el)el.innerHTML='';});
   show('s-intro');
 }
 $('restart-topic').onclick=resetForNewTopic;

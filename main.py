@@ -78,6 +78,42 @@ async def choose(req: ChooseRequest):
     return {"state": new_state, "chosen": node["choices"][req.choice_id]["text"]}
 
 
+class DetailRequest(BaseModel):
+    state: dict = {}
+
+
+@app.post("/api/detail/trials")
+async def detail_trials(req: DetailRequest):
+    """详细记录页用：解释每次试炼选择如何影响六人格分数。"""
+    running = {p: 0 for p in constants.PERSONAS}
+    out = []
+    for idx, item in enumerate(req.state.get("choices") or [], start=1):
+        node_id = item[0] if len(item) > 0 else ""
+        choice_id = item[1] if len(item) > 1 else ""
+        node = constants.NODES.get(node_id)
+        if not node or choice_id not in node["choices"]:
+            continue
+        choice = node["choices"][choice_id]
+        delta = {p: int(choice.get("delta", {}).get(p, 0)) for p in constants.PERSONAS}
+        for p, v in delta.items():
+            running[p] += v
+        out.append({
+            "index": idx,
+            "node_id": node_id,
+            "choice_id": choice_id,
+            "place": node["place"],
+            "scene": node["scene"],
+            "choice": choice["text"],
+            "delta": delta,
+            "after": dict(running),
+        })
+    return {
+        "choices": out,
+        "scores": {p: int((req.state.get("scores") or {}).get(p, 0)) for p in constants.PERSONAS},
+        "weights": {p: int((req.state.get("weights") or {}).get(p, 0)) for p in constants.PERSONAS},
+    }
+
+
 class AskRequest(BaseModel):
     topic: str = ""
     state: dict = {}
