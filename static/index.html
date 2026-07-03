@@ -130,6 +130,7 @@
   .choice{text-align:left;background:var(--ground-2);border:1px solid var(--line);border-radius:3px;
     color:var(--bone);font-size:1.05rem;padding:15px 18px}
   .choice:hover{border-color:var(--brass);transform:translateX(3px)}
+  .choice:disabled{opacity:.5;cursor:default;transform:none;border-color:var(--line)}
   .choice .k{color:var(--brass);font-weight:700;margin-right:10px}
   .progress{font-size:.74rem;letter-spacing:.3em;color:var(--faint);text-transform:uppercase;margin-bottom:6px}
 
@@ -834,6 +835,7 @@ const ROUND_RITUAL={
 };
 let meetingSides={a:'方案 A',b:'方案 B'};
 let lastReport=null;
+let trialChoicesReady=false, trialChoosing=false;
 
 const $=id=>document.getElementById(id);
 const show=id=>{
@@ -1025,6 +1027,7 @@ $('prelude-go').onclick=()=>{ nodeIdx=0; show('s-dungeon'); enterNode(); };
 
 /* —— 地牢 —— */
 async function enterNode(){
+  trialChoicesReady=false; trialChoosing=false;
   const id=ORDER[nodeIdx], node=NODES[id];
   $('node-progress').textContent=`试炼 · 第${TRIAL_NUMS[nodeIdx]||nodeIdx+1}道门`;
   $('node-axis').textContent=node.place;   // 中性地点名，不再显示测量轴
@@ -1052,12 +1055,26 @@ async function enterNode(){
   $('choose-prompt').textContent='吵归吵，手是你的——你怎么做？';
   Object.entries(node.choices).forEach(([cid,text])=>{
     const b=document.createElement('button');b.className='choice';
+    b.disabled=true;
     b.innerHTML=`<span class="k">${cid}</span>${text}`;
-    b.onclick=()=>choose(id,cid); $('node-choices').appendChild(b);
+    b.onpointerdown=()=>{ if(trialChoicesReady&&!trialChoosing) b.dataset.armed='1'; };
+    b.onkeydown=e=>{ if((e.key==='Enter'||e.key===' ')&&trialChoicesReady&&!trialChoosing) b.dataset.armed='1'; };
+    b.onclick=()=>{
+      if(!trialChoicesReady||trialChoosing||b.dataset.armed!=='1')return;
+      b.dataset.armed='';
+      choose(id,cid);
+    };
+    $('node-choices').appendChild(b);
   });
   scrollFlowEnd();
+  await sleep(350);
+  trialChoicesReady=true;
+  $('node-choices').querySelectorAll('.choice').forEach(b=>b.disabled=false);
 }
 async function choose(id,cid){
+  if(!trialChoicesReady||trialChoosing)return;
+  trialChoosing=true; trialChoicesReady=false;
+  $('node-choices').querySelectorAll('.choice').forEach(b=>b.disabled=true);
   const r=await postJSON('/api/choose',{node_id:id,choice_id:cid,state});
   Object.assign(state,r.state);
   nodeIdx++;
