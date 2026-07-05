@@ -4,3 +4,4 @@ __pycache__/
 .env
 plan/.env
 .DS_Store
+LOCAL_CHANGE_RECORD.md
